@@ -1,8 +1,13 @@
 
-#include <iostream>
+#include "Surface.h"
+#include "File.h"
 
 int main() {
+	
+	Surface surface(50);
+	std::string json = surface.toJson();
 
-	printf("Hello world.");
+	File::Write("results/surface.json", json);
 
+	return 0;
 }
