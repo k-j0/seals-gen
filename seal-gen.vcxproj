@@ -140,11 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="File.cpp" />
-    <ClCompile Include="seal-gen.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="File.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Vec.h" />

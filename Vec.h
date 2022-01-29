@@ -22,23 +22,21 @@ public:
 
 	// Component constructors
 	// Variadic params for ease of use - should pass N components exactly!
-	inline Vec(T x, ...) {
-		components[0] = x;
-		va_list arguments;
-		va_start(arguments, x);
-		for (int comp = 1; comp < N; ++comp) {
-			components[comp] = va_arg(arguments, T);
-		}
-		va_end(arguments);
-	}
-	inline Vec(int x, ...) {
+	template<typename TT>
+	inline Vec(TT x, ...) {
 		components[0] = (T)x;
 		va_list arguments;
 		va_start(arguments, x);
 		for (int comp = 1; comp < N; ++comp) {
-			components[comp] = (T)va_arg(arguments, int);
+			components[comp] = (T)va_arg(arguments, TT);
 		}
 		va_end(arguments);
+	}
+
+	static inline Vec<T, N> Zero() {
+		Vec<T, N> zero;
+		for (int i = 0; i < N; ++i) zero.set(i, (T)0);
+		return zero;
 	}
 
 
@@ -148,3 +146,6 @@ public:
 typedef Vec<double, 4> Vec4;
 typedef Vec<double, 3> Vec3;
 typedef Vec<double, 2> Vec2;
+typedef Vec<int, 4> IVec4;
+typedef Vec<int, 3> IVec3;
+typedef Vec<int, 2> IVec2;
