@@ -4,6 +4,7 @@
 #include <random>
 #include <ctime>
 #include <string>
+#include <unordered_set>
 #include "Particle.h"
 
 /// Represents a self-avoiding surface in 3D space, made up of a certain number of particles
@@ -33,6 +34,9 @@ private:
 
 	// List of triangles by particle/vertex indices
 	std::vector<IVec3> triangles;
+
+	// Edge map < vertex index -> [ nearest neighbour vertex indices ] >
+	std::vector<std::unordered_set<int>> edges;
 
 public:
 

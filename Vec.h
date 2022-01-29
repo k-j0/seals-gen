@@ -127,6 +127,13 @@ public:
 		return ret;
 	}
 
+	/// Linear interpolation
+	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, double t) {
+		Vec<T, N> ret;
+		for (int i = 0; i < N; ++i) ret.set(i, (T)(a.get(i) * (1.0 - t) + b.get(i) * t));
+		return ret;
+	}
+
 
 
 	// String conversion
