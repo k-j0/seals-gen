@@ -11,6 +11,8 @@ struct Particle {
 
 	Vec3 position; // Position in 3D space
 
+	double noise; // -1..1 random noise
+
 	/// Helper factory to construct new particles
 	static inline Particle FromPosition(Vec3 pos) {
 		Particle p;

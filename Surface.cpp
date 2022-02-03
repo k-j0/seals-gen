@@ -18,6 +18,7 @@ Surface::Surface(Surface::Params params, int seed) :
 	triangles = icosahedron->indices;
 	for (std::size_t i = 0; i < particles.size(); ++i) {
 		particles[i] = Particle::FromPosition(icosahedron->vertices[i]);
+		particles[i].noise = RAND01 * 2 - 1;
 	}
 
 	// init edges amongst original geo
@@ -48,6 +49,7 @@ void Surface::addParticle() {
 	assert(b > -1);
 	int c = (int)particles.size();
 	particles.push_back(Particle::FromPosition(Vec3::Lerp(particles[a].position, particles[b].position, 0.5)));
+	particles.back().noise = RAND01 * 2 - 1;
 
 	// update edge map
 	edges.push_back(std::unordered_set<int>());
@@ -103,9 +105,8 @@ void Surface::update () {
 			if (i == j || edges[i].find(j) != edges[i].end()) continue; // same particle, or nearest neighbours
 
 			// repel if close enough
-			// @todo: add noise
 			Vec3 towards = particles[j].position - particles[i].position;
-			double d = sqrt(towards.lengthSqr());
+			double d = sqrt(towards.lengthSqr()) * (1 + particles[i].noise * params.noise);
 			if (d < params.attractionMagnitude * params.repulsionMagnitudeFactor) {
 				towards.normalize();
 				towards.multiply(d - params.attractionMagnitude * params.repulsionMagnitudeFactor);
