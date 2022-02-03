@@ -12,27 +12,30 @@ int main() {
 
 	std::chrono::high_resolution_clock clock;
 	auto start = clock.now();
-	
-	/*for (int i = 0; i < 10000 / 5; ++i) {
-		surface.addParticle();
-	}*/
 
 	// grow progressively
-	// 10k iterations, serial, release build: ~240s (~4 mins) (of which tessellation ~.03s)
+	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~.03s)
 	const int iterations = 10000;
+	std::string snapshotsJson = "[\n";
 	for (int t = 0; t < iterations; ++t) {
+
+		// update surface
 		if (t % 5 == 0) {
 			surface.addParticle();
 		}
-		if (t % (iterations / 100) == 0) {
-			printf("%d %%...\r", t * 100 / iterations);
-		}
 		surface.update();
+
+		// recurrent outputs (console + snapshots)
+		if (t % (iterations / 256) == 0) { // 256 hits over the full generation (no matter iteration count)
+			printf("%d %%...\r", t * 100 / iterations);
+			snapshotsJson += surface.toJson() + ",\n";
+		}
+
 	}
 	printf("100 %%  \n");
 
-	// settle
-	for (int t = 0; t < 100; ++t) {
+	// settle (iterations without new particles)
+	for (int t = 0; t < 50; ++t) {
 		surface.update();
 	}
 
@@ -40,8 +43,8 @@ int main() {
 	auto end = clock.now();
 	printf("Total runtime: %d ms.\n", int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()));
 
-	std::string json = surface.toJson();
-	File::Write("results/surface.json", json);
+	snapshotsJson += surface.toJson() + "\n]";
+	File::Write("results/surface.json", snapshotsJson);
 
 	return 0;
 }
