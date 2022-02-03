@@ -15,7 +15,7 @@ int main() {
 
 	// grow progressively
 	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~.03s)
-	const int iterations = 10000;
+	const int iterations = 5000;
 	std::string snapshotsJson = "[\n";
 	for (int t = 0; t < iterations; ++t) {
 

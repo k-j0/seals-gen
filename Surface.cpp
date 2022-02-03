@@ -114,7 +114,10 @@ void Surface::update () {
 		}
 
 		// iterate over neighbour particles
+		Vec3 neighbourAvg(0, 0, 0);
 		for (const int& neighbour : edges[i]) {
+
+			neighbourAvg.add(particles[neighbour].position);
 
 			// attract if far, repel if too close
 			Vec3 towards = particles[neighbour].position - particles[i].position;
@@ -124,6 +127,13 @@ void Surface::update () {
 			particles[i].acceleration.add(towards);
 
 		}
+
+		// apply rigidity rule
+		neighbourAvg.multiply(1.0 / edges[i].size());
+		Vec3 twdAvg = neighbourAvg - particles[i].position;
+		twdAvg.normalize();
+		twdAvg.multiply(params.rigidity);
+		particles[i].acceleration.add(twdAvg);
 
 	}
 
