@@ -16,12 +16,20 @@ public:
 	struct Params {
 
 		double attractionMagnitude = .075;
+		double repulsionMagnitudeFactor = 1.5; // * attractionMagnitude
+		double damping = .15;
+		double boundaryRadius = 1.;
+		double boundaryExtent = .05; // 0..1
+		double dt = .15;
 
 	};
 
 private:
 
 	Params params;
+
+	// Current timestep/iteration
+	int t = 0;
 
 	// Keep seed in memory
 	int seed;
@@ -45,6 +53,10 @@ public:
 
 	/// Adds a particle in a random location on the surface
 	void addParticle ();
+
+	/// Updates all particle accelerations/velocities/positions (advance one time step)
+	/// Serial version
+	void update ();
 
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson();

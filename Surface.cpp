@@ -83,11 +83,78 @@ void Surface::addParticle() {
 
 }
 
+void Surface::update () {
+
+	// update acceleration values for all particles first without writing to position
+	for (std::size_t i = 0; i < particles.size(); ++i) {
+
+		// dampen acceleration
+		particles[i].acceleration.multiply(params.damping * params.damping);
+
+		// boundary restriction (in sphere of radius params.boundaryRadius)
+		const double posLen = sqrt(particles[i].position.lengthSqr());
+		if (posLen > params.boundaryRadius * (1.0 - params.boundaryExtent)) {
+			double d = (1.0 - params.boundaryExtent) - posLen / params.boundaryRadius;
+			particles[i].acceleration.add(particles[i].position * -d * d * .5);
+		}
+
+		// iterate over non-neighbour particles
+		for (std::size_t j = 0; j < particles.size(); ++j) {
+			if (i == j || edges[i].find(j) != edges[i].end()) continue; // same particle, or nearest neighbours
+
+			// repel if close enough
+			// @todo: add noise
+			Vec3 towards = particles[j].position - particles[i].position;
+			double d = sqrt(towards.lengthSqr());
+			if (d < params.attractionMagnitude * params.repulsionMagnitudeFactor) {
+				towards.normalize();
+				towards.multiply(d - params.attractionMagnitude * params.repulsionMagnitudeFactor);
+				particles[i].acceleration.add(towards);
+			}
+		}
+
+		// iterate over neighbour particles
+		for (const int& neighbour : edges[i]) {
+
+			// attract if far, repel if too close
+			Vec3 towards = particles[neighbour].position - particles[i].position;
+			double d = sqrt(towards.lengthSqr());
+			towards.normalize();
+			towards.multiply(d - params.attractionMagnitude);
+			particles[i].acceleration.add(towards);
+
+		}
+
+	}
+
+	// update positions for all particles
+	for (std::size_t i = 0; i < particles.size(); ++i) {
+
+		// dampen velocity
+		particles[i].velocity.multiply(params.damping);
+
+		// apply acceleration
+		particles[i].velocity.add(particles[i].acceleration * params.dt);
+
+		// apply velocity
+		particles[i].position.add(particles[i].velocity * params.dt);
+
+		// apply hard boundary
+		if (particles[i].position.lengthSqr() > params.boundaryRadius * params.boundaryRadius) {
+			particles[i].position.normalize();
+			particles[i].position.multiply(params.boundaryRadius);
+		}
+	}
+
+	++t;
+}
+
 std::string Surface::toJson() {
 
 	std::string json = "{\n"
-		"\t'time': " + std::to_string(time(nullptr)) + ",\n"
-		"\t'seed': " + std::to_string(seed) + ",\n";
+		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
+		"\t'seed': " + std::to_string(seed) + ",\n"
+		"\t'timesteps': " + std::to_string(t) + ",\n";
 	
 	json += "\t'particles': [\n";
 	for (std::size_t i = 0; i < particles.size(); ++i) {

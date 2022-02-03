@@ -90,6 +90,10 @@ public:
 		for (int i = 0; i < N; ++i) ret.set(i, get(i) / length);
 		return ret;
 	}
+	inline void normalize() {
+		T length = (T)sqrt((double)lengthSqr());
+		for (int i = 0; i < N; ++i) set(i, get(i) / length);
+	}
 
 
 
@@ -106,6 +110,10 @@ public:
 		Vec<T, N> n = (*this) + v;
 		for (int i = 0; i < N; ++i) set(i, n[i]);
 		return *this;
+	}
+
+	inline void add(const Vec<T, N>& v) {
+		for (int i = 0; i < N; ++i) set(i, get(i) + v[i]);
 	}
 
 	inline Vec<T, N> operator-(const Vec<T, N>& v) const {
@@ -125,6 +133,10 @@ public:
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, get(i) * f);
 		return ret;
+	}
+
+	inline void multiply(const T& f) {
+		for (int i = 0; i < N; ++i) set(i, get(i) * f);
 	}
 
 	/// Linear interpolation
