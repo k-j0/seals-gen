@@ -26,7 +26,7 @@ int main() {
 		surface.update();
 
 		// recurrent outputs (console + snapshots)
-		if (t % (iterations / 256) == 0) { // 256 hits over the full generation (no matter iteration count)
+		if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
 			printf("%d %%...\r", t * 100 / iterations);
 			snapshotsJson += surface.toJson() + ",\n";
 		}
