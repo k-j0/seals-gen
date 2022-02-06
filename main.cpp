@@ -15,8 +15,9 @@ int main() {
 
 	// grow progressively
 	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~.03s)
-	const int iterations = 5000;
+	const int iterations = 500000;
 	std::string snapshotsJson = "[\n";
+	bool first = true;
 	for (int t = 0; t < iterations; ++t) {
 
 		// update surface
@@ -28,7 +29,12 @@ int main() {
 		// recurrent outputs (console + snapshots)
 		if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
 			printf("%d %%...\r", t * 100 / iterations);
-			snapshotsJson += surface.toJson() + ",\n";
+			if (!first) {
+				snapshotsJson += ",\n";
+			}
+			snapshotsJson += surface.toJson();
+			first = false;
+			File::Write("results/surface.json", snapshotsJson + "\n]");
 		}
 
 	}
@@ -43,8 +49,9 @@ int main() {
 	auto end = clock.now();
 	printf("Total runtime: %d ms.\n", int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()));
 
-	snapshotsJson += surface.toJson() + "\n]";
-	File::Write("results/surface.json", snapshotsJson);
+	// Write the final snapshot
+	snapshotsJson += ",\n" + surface.toJson();
+	File::Write("results/surface.json", snapshotsJson + "\n]");
 
 	return 0;
 }
