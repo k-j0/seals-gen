@@ -109,15 +109,10 @@ void Surface::addParticleDelaunay () {
 
 	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
 	p.noise = RAND01 * 2 - 1;
-	p.position = p.spherical; // for now - @todo remove this and instead lerp between neighbours
-	/*for (int neighbour : edges[particles.size() - 1]) {
+	for (int neighbour : edges[particles.size() - 1]) {
 		p.position.add(particles[neighbour].position);
-		p.velocity.add(particles[neighbour].velocity);
-		p.acceleration.add(particles[neighbour].acceleration);
 	}
-	p.position.multiply(1.0 / edges[particles.size()].size());
-	p.velocity.multiply(1.0 / edges[particles.size()].size());
-	p.acceleration.multiply(1.0 / edges[particles.size()].size());*/
+	p.position.multiply(1.0 / edges[particles.size() - 1].size());
 
 }
 
@@ -151,10 +146,7 @@ void Surface::update () {
 		}
 
 		// iterate over neighbour particles
-		Vec3 neighbourAvg(0, 0, 0);
 		for (const int& neighbour : edges[i]) {
-
-			neighbourAvg.add(particles[neighbour].position);
 
 			// attract if far, repel if too close
 			Vec3 towards = particles[neighbour].position - particles[i].position;
@@ -162,16 +154,7 @@ void Surface::update () {
 			towards.normalize();
 			towards.multiply(d - params.attractionMagnitude);
 			particles[i].acceleration.add(towards);
-
 		}
-
-		// apply rigidity rule
-		neighbourAvg.multiply(1.0 / edges[i].size());
-		Vec3 twdAvg = neighbourAvg - particles[i].position;
-		twdAvg.normalize();
-		twdAvg.multiply(params.rigidity);
-		particles[i].acceleration.add(twdAvg);
-
 	}
 
 	// update positions for all particles

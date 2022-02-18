@@ -18,7 +18,6 @@ public:
 		double attractionMagnitude = .075;
 		double repulsionMagnitudeFactor = 1.5; // * attractionMagnitude
 		double damping = .15;
-		double rigidity = .1;
 		double noise = .25;
 		double boundaryRadius = 1.;
 		double boundaryExtent = .05; // 0..1
