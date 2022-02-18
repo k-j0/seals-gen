@@ -45,7 +45,7 @@ namespace sd {
         outTriangles.clear();
         outTriangles.reserve(delaunay.triangles.size());
         for (std::size_t i = 0; i < delaunay.triangles.size(); i += 3) {
-            outTriangles.push_back(IVec3(delaunay.triangles[i], delaunay.triangles[i+1], delaunay.triangles[i+2]));
+            outTriangles.push_back(IVec3(delaunay.triangles[i], delaunay.triangles[i+2], delaunay.triangles[i+1]));
         }
 
         // Recompute edge map
