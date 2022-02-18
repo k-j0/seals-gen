@@ -11,19 +11,19 @@ int main() {
 	params.attractionMagnitude = 1;
 	Surface surface(params, 0);
 
+	const int iterations = 10000;
+	std::string snapshotsJson = "[\n";
+	bool first = true;
 	std::chrono::high_resolution_clock clock;
 	auto start = clock.now();
 
 	// grow progressively
 	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~.02s)
-	const int iterations = 10000;
-	std::string snapshotsJson = "[\n";
-	bool first = true;
 	for (int t = 0; t < iterations; ++t) {
 
 		// update surface
 		if (t % 5 == 0) {
-			surface.addParticle();
+			surface.addParticleDelaunay();
 		}
 		//surface.update();
 
@@ -39,6 +39,7 @@ int main() {
 		}
 
 	}
+	//surface.addParticleDelaunay();
 	printf("100 %%  \n");
 
 	// settle (iterations without new particles)

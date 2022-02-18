@@ -2,6 +2,7 @@
 #include "Surface.h"
 
 #include "Geometry.h"
+#include "SphericalDelaunay.h"
 
 
 #define RAND01 double(abs(int(rng())) % 10000) / 10000.0
@@ -19,6 +20,8 @@ Surface::Surface(Surface::Params params, int seed) :
 	for (std::size_t i = 0; i < particles.size(); ++i) {
 		particles[i] = Particle::FromPosition(icosahedron->vertices[i]);
 		particles[i].noise = RAND01 * 2 - 1;
+		// initial particles share spherical coords with their original positions (likely never the case later)
+		particles[i].spherical = particles[i].position.normalized();
 	}
 
 	// init edges amongst original geo
@@ -33,7 +36,7 @@ Surface::Surface(Surface::Params params, int seed) :
 
 }
 
-void Surface::addParticle() {
+void Surface::addParticle () {
 
 	// get 2 random connected particles among the existing set and insert a new one in the middle
 	int a = int(RAND01 * edges.size());
@@ -82,6 +85,39 @@ void Surface::addParticle() {
 			edges[e].insert(c);
 		}
 	}
+
+}
+
+void Surface::addParticleDelaunay () {
+
+	// @todo For now, this takes around 10x as long to compute as addParticle() since the entire mesh is retriangulated
+
+	particles.push_back(Particle::Zero());
+	Particle& p = particles.back();
+
+	// place particle anywhere on the unit sphere
+	do {
+		do {
+			p.spherical = Vec3(RAND01 - 0.5, RAND01 - 0.5, RAND01 - 0.5);
+		} while (p.spherical.lengthSqr() == 0); // prevent from creating point (0,0,0)
+		p.spherical.normalize();
+	} while (p.spherical.Y() == 1); // prevent from placing a point at the north pole
+
+	// update the triangulation including the new particle
+	edges.push_back(std::unordered_set<int>()); // add slot for the new particle in the edge map
+	sd::SphericalDelaunay(particles, triangles, edges);
+
+	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
+	p.noise = RAND01 * 2 - 1;
+	p.position = p.spherical; // for now - @todo remove this and instead lerp between neighbours
+	/*for (int neighbour : edges[particles.size() - 1]) {
+		p.position.add(particles[neighbour].position);
+		p.velocity.add(particles[neighbour].velocity);
+		p.acceleration.add(particles[neighbour].acceleration);
+	}
+	p.position.multiply(1.0 / edges[particles.size()].size());
+	p.velocity.multiply(1.0 / edges[particles.size()].size());
+	p.acceleration.multiply(1.0 / edges[particles.size()].size());*/
 
 }
 
@@ -172,7 +208,9 @@ std::string Surface::toJson() {
 		json += "\t\t{\n";
 		json += "\t\t\t'position': " + particles[i].position.toString() + ",\n";
 		json += "\t\t\t'velocity': " + particles[i].velocity.toString() + ",\n";
-		json += "\t\t\t'acceleration': " + particles[i].acceleration.toString() + "\n";
+		json += "\t\t\t'acceleration': " + particles[i].acceleration.toString() + ",\n";
+		json += "\t\t\t'spherical': " + particles[i].spherical.toString() + ",\n";
+		json += "\t\t\t'noise': " + std::to_string(particles[i].noise) + "\n";
 		json += "\t\t}";
 		if (i < particles.size() - 1) json += ",";
 		json += "\n";

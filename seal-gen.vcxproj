@@ -145,6 +145,8 @@
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="delaunator.h" />
+    <ClInclude Include="SphericalDelaunay.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Particle.h" />

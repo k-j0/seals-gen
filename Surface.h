@@ -56,6 +56,9 @@ public:
 	/// Adds a particle in a random location on the surface
 	void addParticle ();
 
+	/// Adds a particle in a random location on the surface, using Delaunay triangulation
+	void addParticleDelaunay ();
+
 	/// Updates all particle accelerations/velocities/positions (advance one time step)
 	/// Serial version
 	void update ();
