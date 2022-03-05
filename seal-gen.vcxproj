@@ -145,7 +145,10 @@
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundaryCondition.h" />
+    <ClInclude Include="CylinderBoundary.h" />
     <ClInclude Include="delaunator.h" />
+    <ClInclude Include="SphereBoundary.h" />
     <ClInclude Include="SphericalDelaunay.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Geometry.h" />

@@ -80,17 +80,34 @@ public:
 	inline T setZ (const T& val) { return set(2, val); }
 	inline T setW (const T& val) { return set(3, val); }
 
+	// Swizzle setters (2- and 3-components only; all possible permutations of x, y, z, w)
+#define SWIZ2(a, b)			inline void set ## a ## b		(const Vec<T, 2>& v)	{ set ## a (v[0]); set ## b (v[1]); }
+#define SWIZ3(a, b, c)		inline void set ## a ## b ## c	(const Vec<T, 3>& v)	{ set ## a (v[0]); set ## b (v[1]); set ## c (v[2]); }
+	// .x, .xx, .xxx
+#define SWIZZLE(a) SWIZ2(a, a) SWIZ3(a, a, a)
+	SWIZZLE(X) SWIZZLE(Y) SWIZZLE(Z) SWIZZLE(W)
+#undef SWIZZLE
+	// .xy, .yx, .xxy, .xyx, .yxx, .xyy, .yxy, .yyx
+#define SWIZZLE(a, b) SWIZ2(a, b) SWIZ2(b, a) SWIZ3(a, a, b) SWIZ3(a, b, a) SWIZ3(b, a, a) SWIZ3(a, b, b) SWIZ3(b, a, b) SWIZ3(b, b, a)
+	SWIZZLE(X, Y) SWIZZLE(X, Z) SWIZZLE(X, W) SWIZZLE(Y, Z) SWIZZLE(Y, W) SWIZZLE(Z, W)
+#undef SWIZZLE
+	// .xyz, .xzy, .yxz, .zxy, .yzx, .zyx
+#define SWIZZLE(a, b, c) SWIZ3(a, b, c) SWIZ3(a, c, b) SWIZ3(b, a, c) SWIZ3(c, a, b) SWIZ3(b, c, a) SWIZ3(c, b, a)
+	SWIZZLE(X, Y, Z) SWIZZLE(X, Y, W) SWIZZLE(X, Z, W) SWIZZLE(Y, Z, W)
+#undef SWIZZLE
+#undef SWIZ2
+#undef SWIZ3
 
 
 	/// Vector length squared
-	inline T lengthSqr() {
+	inline T lengthSqr() const {
 		T val = 0;
 		for (int i = 0; i < N; ++i) val += get(i) * get(i);
 		return val;
 	}
 
 	/// Normalized vector
-	inline Vec<T, N> normalized() {
+	inline Vec<T, N> normalized() const {
 		T length = (T)sqrt((double)lengthSqr());
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, get(i) / length);

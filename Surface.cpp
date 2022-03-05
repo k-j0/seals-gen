@@ -124,12 +124,11 @@ void Surface::update () {
 		// dampen acceleration
 		particles[i].acceleration.multiply(params.damping * params.damping);
 
-		// boundary restriction (in sphere of radius params.boundaryRadius)
-		const double posLen = sqrt(particles[i].position.lengthSqr());
-		if (posLen > params.boundaryRadius * (1.0 - params.boundaryExtent)) {
-			double d = (1.0 - params.boundaryExtent) - posLen / params.boundaryRadius;
-			particles[i].acceleration.add(particles[i].position * -d * d * .5);
+		// boundary restriction force
+		if (params.boundary) {
+			particles[i].acceleration.add(params.boundary->force(particles[i].position));
 		}
+		
 
 		// iterate over non-neighbour particles
 		for (std::size_t j = 0; j < particles.size(); ++j) {
@@ -170,9 +169,8 @@ void Surface::update () {
 		particles[i].position.add(particles[i].velocity * params.dt);
 
 		// apply hard boundary
-		if (particles[i].position.lengthSqr() > params.boundaryRadius * params.boundaryRadius) {
-			particles[i].position.normalize();
-			particles[i].position.multiply(params.boundaryRadius);
+		if (params.boundary) {
+			params.boundary->hard(particles[i].position);
 		}
 	}
 

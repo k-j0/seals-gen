@@ -1,7 +1,8 @@
 
+#include <chrono>
 #include "Surface.h"
 #include "File.h"
-#include <chrono>
+#include "CylinderBoundary.h"
 
 int main() {
 
@@ -9,6 +10,7 @@ int main() {
 	
 	Surface::Params params;
 	params.repulsionAnisotropy = Vec3(1.0, 0.1, 0.1);
+	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.4));
 	Surface surface(params, 0);
 
 	const int iterations = 10000;

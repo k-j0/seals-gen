@@ -5,7 +5,9 @@
 #include <ctime>
 #include <string>
 #include <unordered_set>
+#include <memory>
 #include "Particle.h"
+#include "SphereBoundary.h"
 
 /// Represents a self-avoiding surface in 3D space, made up of a certain number of particles
 class Surface {
@@ -20,8 +22,7 @@ public:
 		double damping = .15;
 		double noise = .25;
 		Vec3 repulsionAnisotropy = Vec3::One();
-		double boundaryRadius = 1.;
-		double boundaryExtent = .05; // 0..1
+		std::shared_ptr<BoundaryCondition> boundary = std::shared_ptr<BoundaryCondition>(new SphereBoundary);
 		double dt = .15;
 
 	};
