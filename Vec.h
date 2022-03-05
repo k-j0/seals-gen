@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cassert>
 #include <cstdarg>
@@ -37,6 +37,12 @@ public:
 		Vec<T, N> zero;
 		for (int i = 0; i < N; ++i) zero.set(i, (T)0);
 		return zero;
+	}
+
+	static inline Vec<T, N> One() {
+		Vec<T, N> one;
+		for (int i = 0; i < N; ++i) one.set(i, (T)1);
+		return one;
 	}
 
 
@@ -159,6 +165,24 @@ public:
 	}
 
 };
+
+
+
+// Custom operator for hadamard (elementwise) product
+// Two Vec<T, N> instances v1 and v2 can be elementwise-multiplied using v1 <o> v2
+template<typename T, int N> struct HadamardVecLhs { Vec<T, N> lhs; };
+enum { hadamard };
+template<typename T, int N>
+HadamardVecLhs<T, N> operator<(const Vec<T, N>& lhs, decltype(hadamard)) {
+	return { lhs };
+}
+template<typename T, int N>
+Vec<T, N> operator>(const HadamardVecLhs<T, N>& lhs, const Vec<T, N>& rhs) {
+	Vec<T, N> result;
+	for (int i = 0; i < N; ++i) result.set(i, lhs.lhs[i] * rhs[i]);
+	return result;
+}
+
 
 
 // Common Vec types

@@ -8,6 +8,7 @@ int main() {
 	printf("Starting...\n\n");
 	
 	Surface::Params params;
+	params.repulsionAnisotropy = Vec3(1.0, 0.1, 0.1);
 	Surface surface(params, 0);
 
 	const int iterations = 10000;

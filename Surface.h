@@ -16,9 +16,10 @@ public:
 	struct Params {
 
 		double attractionMagnitude = .075;
-		double repulsionMagnitudeFactor = 1.5; // * attractionMagnitude
+		double repulsionMagnitudeFactor = 2.1; // * attractionMagnitude
 		double damping = .15;
 		double noise = .25;
+		Vec3 repulsionAnisotropy = Vec3::One();
 		double boundaryRadius = 1.;
 		double boundaryExtent = .05; // 0..1
 		double dt = .15;

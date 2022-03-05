@@ -141,7 +141,7 @@ void Surface::update () {
 			if (d < params.attractionMagnitude * params.repulsionMagnitudeFactor) {
 				towards.normalize();
 				towards.multiply(d - params.attractionMagnitude * params.repulsionMagnitudeFactor);
-				particles[i].acceleration.add(towards);
+				particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
 			}
 		}
 
