@@ -187,7 +187,7 @@ std::string Surface::toJson() {
 		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
 		"\t'damping': " + std::to_string(params.damping) + ",\n"
 		"\t'noise': " + std::to_string(params.noise) + ",\n"
-		"\t'repulsionAnisortopy': " + params.repulsionAnisotropy.toString() + ",\n"
+		"\t'repulsionAnisotropy': " + params.repulsionAnisotropy.toString() + ",\n"
 		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
 		"\t'dt': " + std::to_string(params.dt) + ",\n";
 	
