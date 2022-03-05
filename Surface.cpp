@@ -182,7 +182,14 @@ std::string Surface::toJson() {
 	std::string json = "{\n"
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
 		"\t'seed': " + std::to_string(seed) + ",\n"
-		"\t'timesteps': " + std::to_string(t) + ",\n";
+		"\t'timesteps': " + std::to_string(t) + ",\n"
+		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
+		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
+		"\t'damping': " + std::to_string(params.damping) + ",\n"
+		"\t'noise': " + std::to_string(params.noise) + ",\n"
+		"\t'repulsionAnisortopy': " + params.repulsionAnisotropy.toString() + ",\n"
+		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
+		"\t'dt': " + std::to_string(params.dt) + ",\n";
 	
 	json += "\t'particles': [\n";
 	for (std::size_t i = 0; i < particles.size(); ++i) {

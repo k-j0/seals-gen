@@ -32,4 +32,8 @@ public:
 		}
 	}
 
+	inline std::string toJson() override {
+		return "{ 'type': 'sphere', 'radius': " + std::to_string(radius) + ", 'extent': " + std::to_string(extent) + " }";
+	}
+
 };
