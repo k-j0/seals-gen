@@ -3,6 +3,7 @@
 
 #include "Geometry.h"
 #include "SphericalDelaunay.h"
+#include "Utils.h"
 
 
 #define RAND01 double(abs(int(rng())) % 10000) / 10000.0
@@ -181,6 +182,7 @@ std::string Surface::toJson() {
 
 	std::string json = "{\n"
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
+		"\t'machine': '" + getMachineName() + "',\n"
 		"\t'seed': " + std::to_string(seed) + ",\n"
 		"\t'timesteps': " + std::to_string(t) + ",\n"
 		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
