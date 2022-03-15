@@ -119,8 +119,11 @@ void Surface::addParticleDelaunay () {
 
 void Surface::update () {
 
+	int numParticles = (int)particles.size();
+
 	// update acceleration values for all particles first without writing to position
-	for (std::size_t i = 0; i < particles.size(); ++i) {
+	#pragma omp parallel for
+	for (int i = 0; i < numParticles; ++i) {
 
 		// dampen acceleration
 		particles[i].acceleration.multiply(params.damping * params.damping);
@@ -158,7 +161,8 @@ void Surface::update () {
 	}
 
 	// update positions for all particles
-	for (std::size_t i = 0; i < particles.size(); ++i) {
+	#pragma omp parallel for
+	for (int i = 0; i < numParticles; ++i) {
 
 		// dampen velocity
 		particles[i].velocity.multiply(params.damping);

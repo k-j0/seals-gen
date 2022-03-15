@@ -3,10 +3,21 @@
 #include "Surface.h"
 #include "File.h"
 #include "CylinderBoundary.h"
+#ifdef _OPENMP
+	#include <omp.h>
+#endif
 
 int main() {
 
 	printf("Starting...\n\n");
+
+#ifdef _OPENMP
+	#pragma omp parallel
+	#pragma omp master
+	{
+		printf("OpenMP enabled, %d threads.\n\n", omp_get_num_threads());
+	}
+#endif
 	
 	Surface::Params params;
 	params.repulsionAnisotropy = Vec3(1.0, 0.1, 0.1);
@@ -21,6 +32,7 @@ int main() {
 
 	// grow progressively
 	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~0.2s (Delaunay: ~2.6s))
+	// 10k iterations, omp, release build: ~60s
 	for (int t = 0; t < iterations; ++t) {
 
 		// update surface
