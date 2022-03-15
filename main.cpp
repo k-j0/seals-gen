@@ -24,11 +24,11 @@ int main() {
 #ifdef NO_UPDATE
 	params.attractionMagnitude = 1.0;
 #endif
-	params.repulsionAnisotropy = Vec3(1.0, 0.1, 0.1);
+	params.repulsionAnisotropy = Vec3(0.1, 0.1, 1.0);
 	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.4));
 	Surface surface(params, 0);
 
-	const int iterations = 1000;
+	const int iterations = 10000;
 	std::string snapshotsJson = "[\n";
 	bool first = true;
 	std::chrono::high_resolution_clock clock;

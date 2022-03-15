@@ -14,21 +14,21 @@ public:
 
 	inline Vec3 force(const Vec3& position) override {
 		Vec3 f = Vec3::Zero();
-		Vec2 yz = position.YZ();
-		const double posLen = sqrt(yz.lengthSqr());
+		Vec2 xy = position.XY();
+		const double posLen = sqrt(xy.lengthSqr());
 		if (posLen > radius * (1.0 - extent)) {
 			double d = (1.0 - extent) - posLen / radius;
-			f.setYZ(yz * -d * d * .5);
+			f.setXY(xy * -d * d * .5);
 		}
 		return f;
 	}
 
 	inline void hard(Vec3& position) override {
-		Vec2 yz = position.YZ();
-		if (yz.lengthSqr() > radius * radius) {
-			yz.normalize();
-			yz.multiply(radius);
-			position.setYZ(yz);
+		Vec2 xy = position.XY();
+		if (xy.lengthSqr() > radius * radius) {
+			xy.normalize();
+			xy.multiply(radius);
+			position.setXY(xy);
 		}
 	}
 
