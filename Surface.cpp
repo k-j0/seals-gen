@@ -140,10 +140,12 @@ void Surface::update () {
 
 			// repel if close enough
 			Vec3 towards = particles[j].position - particles[i].position;
-			double d = sqrt(towards.lengthSqr()) * (1 + particles[i].noise * params.noise);
-			if (d < params.attractionMagnitude * params.repulsionMagnitudeFactor) {
+			double noise = (1 + particles[i].noise * params.noise);
+			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
+			double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
+			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
-				towards.multiply(d - params.attractionMagnitude * params.repulsionMagnitudeFactor);
+				towards.multiply(sqrt(d2) - repulsionLen);
 				particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
 			}
 		}
