@@ -1,6 +1,7 @@
 
 #include "Surface.h"
 
+#include "Options.h"
 #include "Geometry.h"
 #include "SphericalDelaunay.h"
 #include "Utils.h"
@@ -110,10 +111,14 @@ void Surface::addParticleDelaunay () {
 
 	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
 	p.noise = RAND01 * 2 - 1;
+#ifndef NO_UPDATE
 	for (int neighbour : edges[particles.size() - 1]) {
 		p.position.add(particles[neighbour].position);
 	}
 	p.position.multiply(1.0 / edges[particles.size() - 1].size());
+#else
+	p.position = p.spherical;
+#endif
 
 }
 

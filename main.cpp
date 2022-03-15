@@ -1,5 +1,6 @@
 
 #include <chrono>
+#include "Options.h"
 #include "Surface.h"
 #include "File.h"
 #include "CylinderBoundary.h"
@@ -20,11 +21,14 @@ int main() {
 #endif
 	
 	Surface::Params params;
+#ifdef NO_UPDATE
+	params.attractionMagnitude = 1.0;
+#endif
 	params.repulsionAnisotropy = Vec3(1.0, 0.1, 0.1);
 	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.4));
 	Surface surface(params, 0);
 
-	const int iterations = 10000;
+	const int iterations = 1000;
 	std::string snapshotsJson = "[\n";
 	bool first = true;
 	std::chrono::high_resolution_clock clock;
@@ -39,6 +43,7 @@ int main() {
 		if (t % 5 == 0) {
 			surface.addParticleDelaunay();
 		}
+#ifndef NO_UPDATE
 		surface.update();
 
 		// recurrent outputs (console + snapshots)
@@ -51,15 +56,16 @@ int main() {
 			first = false;
 			File::Write("results/surface.json", snapshotsJson + "\n]");
 		}
-
+#endif
 	}
 	printf("100 %%  \n");
 
+#ifndef NO_UPDATE
 	// settle (iterations without new particles)
 	for (int t = 0; t < 50; ++t) {
 		surface.update();
 	}
-
+#endif
 
 	auto end = clock.now();
 	printf("Total runtime: %d ms.\n", int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()));
