@@ -24,7 +24,7 @@ int main() {
 #ifdef NO_UPDATE
 	params.attractionMagnitude = 1.0;
 #endif
-	params.repulsionAnisotropy = Vec3(0.1, 0.1, 1.0);
+	params.repulsionAnisotropy = Vec3(1.0, 1.0, 1.0);
 	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.4));
 	Surface surface(params, 0);
 
@@ -41,7 +41,7 @@ int main() {
 
 		// update surface
 		if (t % 5 == 0) {
-			surface.addParticleDelaunay();
+			surface.addParticleEdgeDelaunay();
 		}
 #ifndef NO_UPDATE
 		surface.update();

@@ -7,7 +7,7 @@
 #include "Utils.h"
 
 
-#define RAND01 double(abs(int(rng())) % 10000) / 10000.0
+#define RAND01 (double(abs(int(rng())) % 10000) / 10000.0)
 
 
 Surface::Surface(Surface::Params params, int seed) :
@@ -104,6 +104,57 @@ void Surface::addParticleDelaunay () {
 		} while (p.spherical.lengthSqr() == 0); // prevent from creating point (0,0,0)
 		p.spherical.normalize();
 	} while (p.spherical.Y() == 1); // prevent from placing a point at the north pole
+
+	// update the triangulation including the new particle
+	edges.push_back(std::unordered_set<int>()); // add slot for the new particle in the edge map
+	sd::SphericalDelaunay(particles, triangles, edges);
+
+	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
+	p.noise = RAND01 * 2 - 1;
+#ifndef NO_UPDATE
+	for (int neighbour : edges[particles.size() - 1]) {
+		p.position.add(particles[neighbour].position);
+	}
+	p.position.multiply(1.0 / edges[particles.size() - 1].size());
+#else
+	p.position = p.spherical;
+#endif
+
+}
+
+void Surface::addParticleEdgeDelaunay () {
+
+	particles.push_back(Particle::Zero());
+	Particle& p = particles.back();
+
+	// pick two neighbouring particles with higher probability on edges aligned with Z
+	int a = -1, b = -1;
+	do {
+		a = int(RAND01 * edges.size());
+		int bIdx = int(RAND01 * edges[a].size());
+		// O(N log N) random access in set - done here because these sets are likely to be kept fairly small ideally
+		for (auto it = edges[a].begin(); it != edges[a].end(); it++) {
+			--bIdx;
+			if (bIdx <= 0) {
+				b = *it;
+				break;
+			}
+		}
+		assert(b > -1);
+		assert(a < particles.size());
+		assert(b < particles.size());
+		Vec3 dir = particles[a].position - particles[b].position;
+		dir.normalize();
+		if (RAND01 < abs(dir.Z())) {
+			break;
+		}
+	} while (true);
+
+	// place particle between the two selected on the unit sphere
+	assert(a > -1 && a < particles.size());
+	assert(b > -1 && b < particles.size());
+	p.spherical = particles[a].spherical + particles[b].spherical;
+	p.spherical.normalize();
 
 	// update the triangulation including the new particle
 	edges.push_back(std::unordered_set<int>()); // add slot for the new particle in the edge map
