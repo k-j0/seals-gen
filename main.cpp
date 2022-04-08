@@ -34,6 +34,7 @@ int main() {
 
 	const int iterations = 6000;
 	std::string snapshotsJson = "[\n";
+	std::vector<uint8_t> snapshotsBinary;
 	bool first = true;
 	std::chrono::system_clock clock;
 	auto start = clock.now();
@@ -56,9 +57,12 @@ int main() {
 			if (!first) {
 				snapshotsJson += ",\n";
 			}
-			snapshotsJson += surface.toJson(int(std::chrono::duration_cast<std::chrono::milliseconds>(clock.now() - start).count()));
+			int millis = int(std::chrono::duration_cast<std::chrono::milliseconds>(clock.now() - start).count());
+			snapshotsJson += surface.toJson(millis);
+			surface.toBinary(millis, snapshotsBinary);
 			first = false;
 			File::Write("results/surface.json", snapshotsJson + "\n]");
+			File::Write("results/surface.bin", snapshotsBinary);
 		}
 #endif
 	}
@@ -72,12 +76,14 @@ int main() {
 #endif
 
 	auto end = clock.now();
-	int millis = int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
-	printf("Total runtime: %d ms.\n", millis);
+	int totalRuntime = int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+	printf("Total runtime: %d ms.\n", totalRuntime);
 
 	// Write the final snapshot
-	snapshotsJson += (first ? "" : ",\n") + surface.toJson(millis);
+	snapshotsJson += (first ? "" : ",\n") + surface.toJson(totalRuntime);
+	surface.toBinary(totalRuntime, snapshotsBinary);
 	File::Write("results/surface.json", snapshotsJson + "\n]");
+	File::Write("results/surface.bin", snapshotsBinary);
 
 	return 0;
 }

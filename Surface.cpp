@@ -5,6 +5,7 @@
 #include "Geometry.h"
 #include "SphericalDelaunay.h"
 #include "Utils.h"
+#include "BinaryIO.h"
 
 #pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
 
@@ -44,7 +45,7 @@ Surface::Surface(Surface::Params params, int seed) :
 
 	// create grid
 #ifdef USE_GRID
-	grid = std::make_unique<Grid>(params.attractionMagnitude * max(1.0, params.repulsionMagnitudeFactor));
+	grid = std::make_unique<Grid>(float(params.attractionMagnitude * max(1.0, params.repulsionMagnitudeFactor)));
 #endif // USE_GRID
 
 	for (std::size_t i = 0; i < particles.size(); ++i) {
@@ -319,5 +320,40 @@ std::string Surface::toJson(int runtimeMs) {
 
 	std::replace(json.begin(), json.end(), '\'', '"');
 	return json + "}";
+
+}
+
+void Surface::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
+
+	// Header, in front of any surface object in the binary file
+	data.push_back('S'); data.push_back('R'); data.push_back('F');
+
+	// Metadata
+	bio::writeSimple<long long>(data, time(nullptr));
+	bio::writeString(data, getMachineName());
+	bio::writeSimple<int>(data, seed);
+	bio::writeSimple<int>(data, t);
+	bio::writeSimple<double>(data, params.attractionMagnitude);
+	bio::writeSimple<double>(data, params.repulsionMagnitudeFactor);
+	bio::writeSimple<double>(data, params.damping);
+	bio::writeSimple<double>(data, params.noise);
+	bio::writeVec(data, params.repulsionAnisotropy);
+	bio::writeSimple<double>(data, params.dt);
+	bio::writeSimple<int>(data, runtimeMs);
+
+	// Particle positions
+	bio::writeSimple<int>(data, particles.size());
+	for (size_t i = 0; i < particles.size(); ++i) {
+		bio::writeVec(data, particles[i].position);
+	}
+
+	// Triangle indices
+	bio::writeSimple<int>(data, triangles.size());
+	for (size_t i = 0; i < triangles.size(); ++i) {
+		bio::writeVec(data, triangles[i]);
+	}
+
+	// EOS
+	data.push_back(0);
 
 }

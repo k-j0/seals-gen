@@ -150,6 +150,7 @@
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryIO.h" />
     <ClInclude Include="BoundaryCondition.h" />
     <ClInclude Include="CylinderBoundary.h" />
     <ClInclude Include="delaunator.h" />

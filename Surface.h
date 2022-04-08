@@ -79,6 +79,10 @@ public:
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson(int runtimeMs);
 
+	/// Export to minimal binary format
+	/// Data may not be empty, in which case the surface info will be appended to the data vector, leaving existing contents as-is
+	void toBinary(int runtimeMs, std::vector<uint8_t>& data);
+
 private:
 
 	/// Called whenever a new particle is added

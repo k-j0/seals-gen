@@ -7,3 +7,11 @@ void File::Write(std::string filename, std::string contents) {
 	file.close();
 
 }
+
+void File::Write(std::string filename, std::vector<uint8_t> contents) {
+	
+	std::ofstream file(filename, std::ios::binary);
+	file.write(reinterpret_cast<const char*>(&contents[0]), contents.size());
+	file.close();
+
+}
