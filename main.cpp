@@ -8,6 +8,10 @@
 	#include <omp.h>
 #endif
 
+
+#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+
+
 int main() {
 
 	printf("Starting...\n\n");
@@ -25,13 +29,13 @@ int main() {
 	params.attractionMagnitude = 1.0;
 #endif
 	params.repulsionAnisotropy = Vec3(1.0, 1.0, 1.0);
-	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.4));
+	params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.15));
 	Surface surface(params, 0);
 
-	const int iterations = 10000;
+	const int iterations = 6000;
 	std::string snapshotsJson = "[\n";
 	bool first = true;
-	std::chrono::high_resolution_clock clock;
+	std::chrono::system_clock clock;
 	auto start = clock.now();
 
 	// grow progressively
@@ -41,7 +45,7 @@ int main() {
 
 		// update surface
 		if (t % 5 == 0) {
-			surface.addParticleEdgeDelaunay();
+			surface.addParticleDelaunay();
 		}
 #ifndef NO_UPDATE
 		surface.update();

@@ -19,7 +19,10 @@ std::string getMachineName() {
 	char str[64];
 	std::size_t _;
 	wcstombs_s(&_, str, name, 64);
+	#pragma warning(push)
+	#pragma warning(disable: 6054) 
 	result = std::string(str);
+	#pragma warning(pop)
 #else
 	char name[64];
 	gethostname(name, 64);

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
@@ -152,6 +153,7 @@
     <ClInclude Include="BoundaryCondition.h" />
     <ClInclude Include="CylinderBoundary.h" />
     <ClInclude Include="delaunator.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="SphereBoundary.h" />
     <ClInclude Include="SphericalDelaunay.h" />

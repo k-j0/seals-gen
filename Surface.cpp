@@ -6,8 +6,14 @@
 #include "SphericalDelaunay.h"
 #include "Utils.h"
 
+#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+
 
 #define RAND01 (double(abs(int(rng())) % 10000) / 10000.0)
+
+#ifndef max
+	#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
 
 
 Surface::Surface(Surface::Params params, int seed) :
@@ -36,6 +42,14 @@ Surface::Surface(Surface::Params params, int seed) :
 	}
 #undef CONNECT
 
+	// create grid
+#ifdef USE_GRID
+	grid = std::make_unique<Grid>(params.attractionMagnitude * max(1.0, params.repulsionMagnitudeFactor));
+#endif // USE_GRID
+
+	for (std::size_t i = 0; i < particles.size(); ++i) {
+		addParticleToGrid(i);
+	}
 }
 
 void Surface::addParticle () {
@@ -88,6 +102,8 @@ void Surface::addParticle () {
 		}
 	}
 
+	addParticleToGrid(particles.size() - 1);
+
 }
 
 void Surface::addParticleDelaunay () {
@@ -119,6 +135,8 @@ void Surface::addParticleDelaunay () {
 #else
 	p.position = p.spherical;
 #endif
+
+	addParticleToGrid(particles.size() - 1);
 
 }
 
@@ -171,6 +189,8 @@ void Surface::addParticleEdgeDelaunay () {
 	p.position = p.spherical;
 #endif
 
+	addParticleToGrid(particles.size() - 1);
+
 }
 
 void Surface::update () {
@@ -191,19 +211,30 @@ void Surface::update () {
 		
 
 		// iterate over non-neighbour particles
-		for (std::size_t j = 0; j < particles.size(); ++j) {
-			if (i == j || edges[i].find(j) != edges[i].end()) continue; // same particle, or nearest neighbours
+#ifdef USE_GRID
+		std::array<std::vector<int>*, 27> cells;
+		grid->sample(particles[i].position, cells);
+		for (const std::vector<int>* const cell : cells) {
+			if (!cell) continue; // invalid cell (e.g. outside -0.5..0.5 region)
+			for (const int& j : *cell) {
+#else // USE_GRID
+		for (size_t j = 0; j < particles.size(); ++j) {
+#endif // !USE_GRID
+				if (i == j || edges[i].find(j) != edges[i].end()) continue; // same particle, or nearest neighbours
 
-			// repel if close enough
-			Vec3 towards = particles[j].position - particles[i].position;
-			double noise = (1 + particles[i].noise * params.noise);
-			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
-			double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
-			if (d2 < repulsionLen * repulsionLen) {
-				towards.normalize();
-				towards.multiply(sqrt(d2) - repulsionLen);
-				particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
+				// repel if close enough
+				Vec3 towards = particles[j].position - particles[i].position;
+				double noise = (1 + particles[i].noise * params.noise);
+				double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
+				double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
+				if (d2 < repulsionLen * repulsionLen) {
+					towards.normalize();
+					towards.multiply(sqrt(d2) - repulsionLen);
+					particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
+				}
+#ifdef USE_GRID
 			}
+#endif // USE_GRID
 		}
 
 		// iterate over neighbour particles
@@ -236,6 +267,14 @@ void Surface::update () {
 			params.boundary->hard(particles[i].position);
 		}
 	}
+
+	// Update grid
+#ifdef USE_GRID
+	grid->clear();
+	for (int i = 0; i < numParticles; ++i) {
+		addParticleToGrid(i);
+	}
+#endif
 
 	++t;
 }

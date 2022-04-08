@@ -6,8 +6,12 @@
 #include <string>
 #include <unordered_set>
 #include <memory>
+
 #include "Particle.h"
 #include "SphereBoundary.h"
+#include "Grid.h"
+#include "Options.h"
+
 
 /// Represents a self-avoiding surface in 3D space, made up of a certain number of particles
 class Surface {
@@ -17,7 +21,7 @@ public:
 	/// Simulation parameters
 	struct Params {
 
-		double attractionMagnitude = .075;
+		double attractionMagnitude = .025;
 		double repulsionMagnitudeFactor = 2.1; // * attractionMagnitude
 		double damping = .15;
 		double noise = .25;
@@ -49,6 +53,11 @@ private:
 	// Edge map < vertex index -> [ nearest neighbour vertex indices ] >
 	std::vector<std::unordered_set<int>> edges;
 
+	// Grid - spatial acceleration data structure
+#ifdef USE_GRID
+	std::unique_ptr<Grid> grid;
+#endif // USE_GRID
+
 public:
 
 	/// Default constructor
@@ -69,5 +78,22 @@ public:
 
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson();
+
+private:
+
+	/// Called whenever a new particle is added
+#ifdef USE_GRID
+	inline void addParticleToGrid(int particle) {
+		if (particles[particle].position.X() < -0.5) particles[particle].position.setX(-0.5);
+		if (particles[particle].position.X() >= 0.5) particles[particle].position.setX(0.4999);
+		if (particles[particle].position.Y() < -0.5) particles[particle].position.setY(-0.5);
+		if (particles[particle].position.Y() >= 0.5) particles[particle].position.setY(0.4999);
+		if (particles[particle].position.Z() < -0.5) particles[particle].position.setZ(-0.5);
+		if (particles[particle].position.Z() >= 0.5) particles[particle].position.setZ(0.4999);
+		grid->add(particles[particle].position, particle);
+	}
+#else // USE_GRID
+	inline void addParticleToGrid(int particle) { }
+#endif // !USE_GRID
 
 };
