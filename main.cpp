@@ -56,7 +56,7 @@ int main() {
 			if (!first) {
 				snapshotsJson += ",\n";
 			}
-			snapshotsJson += surface.toJson();
+			snapshotsJson += surface.toJson(int(std::chrono::duration_cast<std::chrono::milliseconds>(clock.now() - start).count()));
 			first = false;
 			File::Write("results/surface.json", snapshotsJson + "\n]");
 		}
@@ -76,7 +76,7 @@ int main() {
 	printf("Total runtime: %d ms.\n", millis);
 
 	// Write the final snapshot
-	snapshotsJson += (first ? "" : ",\n") + surface.toJson();
+	snapshotsJson += (first ? "" : ",\n") + surface.toJson(millis);
 	File::Write("results/surface.json", snapshotsJson + "\n]");
 
 	return 0;
