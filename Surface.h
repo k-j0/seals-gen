@@ -77,7 +77,7 @@ public:
 	void update ();
 
 	/// Export to JSON, to be loaded into WebGL viewer
-	std::string toJson();
+	std::string toJson(int runtimeMs);
 
 private:
 

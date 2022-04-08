@@ -72,7 +72,8 @@ int main() {
 #endif
 
 	auto end = clock.now();
-	printf("Total runtime: %d ms.\n", int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()));
+	int millis = int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+	printf("Total runtime: %d ms.\n", millis);
 
 	// Write the final snapshot
 	snapshotsJson += (first ? "" : ",\n") + surface.toJson();

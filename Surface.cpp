@@ -279,7 +279,7 @@ void Surface::update () {
 	++t;
 }
 
-std::string Surface::toJson() {
+std::string Surface::toJson(int runtimeMs) {
 
 	std::string json = "{\n"
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
@@ -292,7 +292,8 @@ std::string Surface::toJson() {
 		"\t'noise': " + std::to_string(params.noise) + ",\n"
 		"\t'repulsionAnisotropy': " + params.repulsionAnisotropy.toString() + ",\n"
 		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
-		"\t'dt': " + std::to_string(params.dt) + ",\n";
+		"\t'dt': " + std::to_string(params.dt) + ",\n"
+		"\t'runtime': " + std::to_string(runtimeMs) + ",\n";
 	
 	json += "\t'particles': [\n";
 	for (std::size_t i = 0; i < particles.size(); ++i) {
