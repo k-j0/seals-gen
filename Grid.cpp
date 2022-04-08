@@ -25,7 +25,7 @@ Grid::Grid(float cellSize) {
 
 void Grid::clear() {
 	for (auto& it : grid) {
-		it.clear();
+		it.resize(0); // spec enforces this preserves the allocated capacity of the vector vs .clear()
 	}
 }
 
