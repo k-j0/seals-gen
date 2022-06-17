@@ -6,9 +6,10 @@
 Surface2::Surface2(Params params, int seed) : Surface<2>(params, seed) {
 	
 	// build initial equilateral triangle with side length = attraction magnitude
-	particles.push_back(Particle<2>::FromPosition(Vec2(1.0, 0.0)));
-	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(2 * M_PI / 3), std::sin(2 * M_PI / 3))));
-	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(4 * M_PI / 3), std::sin(4 * M_PI / 3))));
+	double radius = params.attractionMagnitude;
+	particles.push_back(Particle<2>::FromPosition(Vec2(radius, 0.0)));
+	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(2 * M_PI / 3) * radius, std::sin(2 * M_PI / 3) * radius)));
+	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(4 * M_PI / 3) * radius, std::sin(4 * M_PI / 3) * radius)));
 	
 	// init edges
 	nextNeighbourIndices.push_back(1);

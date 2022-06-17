@@ -94,6 +94,7 @@ std::string Surface<D>::toJson(int runtimeMs) {
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
 		"\t'machine': '" + getMachineName() + "',\n"
 		"\t'seed': " + std::to_string(seed) + ",\n"
+		"\t'dimension': " + std::to_string(D) + ",\n"
 		"\t'timesteps': " + std::to_string(t) + ",\n"
 		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
 		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
