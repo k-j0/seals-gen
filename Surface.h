@@ -11,10 +11,21 @@
 #include "SphereBoundary.h"
 #include "Grid.h"
 #include "Options.h"
+#include "BinaryIO.h"
+#include "Utils.h"
 
 
-/// Represents a self-avoiding surface in 3D space, made up of a certain number of particles
-class Surface {
+class SurfaceBase {
+public:
+	virtual void addParticle() = 0;
+	virtual void update() = 0;
+	virtual std::string toJson(int runtimeMs) = 0;
+	virtual void toBinary(int runtimeMs, std::vector<uint8_t>& data) = 0;
+};
+
+
+template<int D>
+class Surface : public SurfaceBase {
 
 public:
 
@@ -25,14 +36,14 @@ public:
 		double repulsionMagnitudeFactor = 2.1; // * attractionMagnitude
 		double damping = .15;
 		double noise = .25;
-		Vec3 repulsionAnisotropy = Vec3::One();
+		Vec<double, D> repulsionAnisotropy = Vec<double, D>::One();
 		std::shared_ptr<BoundaryCondition> boundary = std::shared_ptr<BoundaryCondition>(new SphereBoundary);
 		double dt = .15;
 
 	};
 
-private:
-
+protected:
+	
 	Params params;
 
 	// Current timestep/iteration
@@ -45,59 +56,84 @@ private:
 	std::mt19937 rng;
 
 	// List of particles/vertices that make up the surface
-	std::vector<Particle> particles;
-
-	// List of triangles by particle/vertex indices
-	std::vector<IVec3> triangles;
-
-	// Edge map < vertex index -> [ nearest neighbour vertex indices ] >
-	std::vector<std::unordered_set<int>> edges;
-
-	// Grid - spatial acceleration data structure
-#ifdef USE_GRID
-	std::unique_ptr<Grid> grid;
-#endif // USE_GRID
+	std::vector<Particle<D>> particles;
 
 public:
-
+	
 	/// Default constructor
 	Surface(Params params, int seed = time(nullptr));
 
-	/// Adds a particle in a random location on the surface
-	void addParticle ();
-
-	/// Adds a particle in a random location on the surface, using Delaunay triangulation
-	void addParticleDelaunay ();
-
-	/// Adds a particle on an aligned edge (anisotropic growth), using Delaunay trigulation
-	void addParticleEdgeDelaunay ();
-
-	/// Updates all particle accelerations/velocities/positions (advance one time step)
-	/// Serial version
-	void update ();
-
 	/// Export to JSON, to be loaded into WebGL viewer
-	std::string toJson(int runtimeMs);
+	std::string toJson(int runtimeMs) final override;
+	virtual void specificJson(std::string& json) = 0;
 
 	/// Export to minimal binary format
 	/// Data may not be empty, in which case the surface info will be appended to the data vector, leaving existing contents as-is
-	void toBinary(int runtimeMs, std::vector<uint8_t>& data);
+	void toBinary(int runtimeMs, std::vector<uint8_t>& data) final override;
+	virtual void specificBinary(std::vector<uint8_t>& data) = 0;
 
-private:
+protected:
 
-	/// Called whenever a new particle is added
-#ifdef USE_GRID
-	inline void addParticleToGrid(int particle) {
-		if (particles[particle].position.X() < -0.5) particles[particle].position.setX(-0.5);
-		if (particles[particle].position.X() >= 0.5) particles[particle].position.setX(0.4999);
-		if (particles[particle].position.Y() < -0.5) particles[particle].position.setY(-0.5);
-		if (particles[particle].position.Y() >= 0.5) particles[particle].position.setY(0.4999);
-		if (particles[particle].position.Z() < -0.5) particles[particle].position.setZ(-0.5);
-		if (particles[particle].position.Z() >= 0.5) particles[particle].position.setZ(0.4999);
-		grid->add(particles[particle].position, particle);
-	}
-#else // USE_GRID
-	inline void addParticleToGrid(int particle) { }
-#endif // !USE_GRID
+	inline double rand01() { return double(abs(int(rng())) % 10000) / 10000.0; }
 
 };
+
+
+
+template<int D>
+Surface<D>::Surface(Surface<D>::Params params, int seed) :
+	params(params),
+	seed(seed),
+	rng(std::mt19937(seed)) { }
+
+
+template<int D>
+std::string Surface<D>::toJson(int runtimeMs) {
+
+	std::string json = "{\n"
+		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
+		"\t'machine': '" + getMachineName() + "',\n"
+		"\t'seed': " + std::to_string(seed) + ",\n"
+		"\t'timesteps': " + std::to_string(t) + ",\n"
+		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
+		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
+		"\t'damping': " + std::to_string(params.damping) + ",\n"
+		"\t'noise': " + std::to_string(params.noise) + ",\n"
+		"\t'repulsionAnisotropy': " + params.repulsionAnisotropy.toString() + ",\n"
+		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
+		"\t'dt': " + std::to_string(params.dt) + ",\n"
+		"\t'runtime': " + std::to_string(runtimeMs) + ",\n";
+
+	specificJson(json);
+
+	std::replace(json.begin(), json.end(), '\'', '"');
+	return json + "}";
+}
+
+template<int D>
+void Surface<D>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
+
+	// Header, in front of any surface object in the binary file
+	data.push_back('S'); data.push_back('R'); data.push_back('F');
+
+	// Metadata
+	bio::writeSimple<uint8_t>(data, D);
+	bio::writeSimple<long long>(data, time(nullptr));
+	bio::writeString(data, getMachineName());
+	bio::writeSimple<int>(data, seed);
+	bio::writeSimple<int>(data, t);
+	bio::writeSimple<double>(data, params.attractionMagnitude);
+	bio::writeSimple<double>(data, params.repulsionMagnitudeFactor);
+	bio::writeSimple<double>(data, params.damping);
+	bio::writeSimple<double>(data, params.noise);
+	bio::writeVec(data, params.repulsionAnisotropy);
+	bio::writeSimple<double>(data, params.dt);
+	bio::writeSimple<int>(data, runtimeMs);
+
+	// Core data
+	specificBinary(data);
+
+	// EOS
+	data.push_back(0);
+}
+

@@ -16,11 +16,11 @@
     <Filter Include="Header Files\boundaries">
       <UniqueIdentifier>{2b315f0a-fd5a-44b3-9711-40eed2f531c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\surface">
+      <UniqueIdentifier>{fe650692-5b84-4588-be17-79236dff5d5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Surface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,27 +33,24 @@
     <ClCompile Include="Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Surface3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Particle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vec.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="delaunator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalDelaunay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BoundaryCondition.h">
@@ -71,11 +68,26 @@
     <ClInclude Include="Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Grid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryIO.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface3.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalDelaunay.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="delaunator.h">
+      <Filter>Header Files\surface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

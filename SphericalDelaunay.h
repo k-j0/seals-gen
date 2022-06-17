@@ -20,7 +20,7 @@ namespace sd {
 
     /// Creates the delaunay triangulation for the set of particles
     /// Adapted from https://github.com/Fil/d3-geo-voronoi/blob/b391ee46d097f5ce41f80c1a2b8d12e34fd685ea/src/delaunay.js#L45
-    void SphericalDelaunay(const std::vector<Particle>& particles, std::vector<IVec3>& outTriangles, std::vector<std::unordered_set<int>>& outEdges) {
+    void SphericalDelaunay(const std::vector<Particle<3>>& particles, std::vector<IVec3>& outTriangles, std::vector<std::unordered_set<int>>& outEdges) {
 
         assert(particles.size() > 1);
 

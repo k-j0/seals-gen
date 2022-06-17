@@ -13,7 +13,7 @@ namespace bio {
 		union {
 			T original;
 			uint8_t bytes[sizeof(T)];
-		} o2b;
+		} o2b = {};
 		o2b.original = val;
 		for (std::size_t i = 0; i < sizeof(T); ++i) {
 			data.push_back(o2b.bytes[i]);
@@ -26,7 +26,7 @@ namespace bio {
 		union {
 			T original;
 			uint8_t bytes[sizeof(T)];
-		} b2o;
+		} b2o = {};
 		for (std::size_t i = 0; i < sizeof(T); ++i) {
 			assert(at < data.size());
 			b2o.bytes[i] = data[at];
@@ -35,23 +35,9 @@ namespace bio {
 		return b2o.original;
 	}
 
-	void writeString(std::vector<uint8_t>& data, const std::string& val) {
-		for (const char& c : val) {
-			writeSimple<char>(data, c);
-		}
-		writeSimple<char>(data, '\0');
-	}
+	void writeString(std::vector<uint8_t>& data, const std::string& val);
 
-	std::string readString(const std::vector<uint8_t>& data, int& at) {
-		std::string s = "";
-		assert(at < data.size());
-		while (at < (int)data.size()) {
-			char c = readSimple<char>(data, at);
-			if (c == '\0') break;
-			else s += c;
-		}
-		return s;
-	}
+	std::string readString(const std::vector<uint8_t>& data, int& at);
 
 	template<typename T, int N>
 	void writeVec (std::vector<uint8_t>& data, const Vec<T, N>& val) {
