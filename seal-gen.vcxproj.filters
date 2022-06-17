@@ -42,6 +42,9 @@
     <ClCompile Include="BinaryIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Surface2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vec.h">
@@ -87,6 +90,9 @@
       <Filter>Header Files\surface</Filter>
     </ClInclude>
     <ClInclude Include="delaunator.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface2.h">
       <Filter>Header Files\surface</Filter>
     </ClInclude>
   </ItemGroup>

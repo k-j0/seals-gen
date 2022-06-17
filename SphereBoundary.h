@@ -3,7 +3,8 @@
 #include "BoundaryCondition.h"
 
 /// Represents a soft spherical boundary
-class SphereBoundary : public BoundaryCondition {
+template<int D>
+class SphereBoundary : public BoundaryCondition<D> {
 
 	// Radius of the sphere encasing the particles
 	double radius;
@@ -16,16 +17,16 @@ public:
 
 	SphereBoundary(double radius = 1.0, double extent = .05) : radius(radius), extent(extent) {}
 
-	inline Vec3 force(const Vec3& position) override {
+	inline Vec<double, D> force(const Vec<double, D>& position) override {
 		const double posLen = sqrt(position.lengthSqr());
 		if (posLen > radius * (1.0 - extent)) {
 			double d = (1.0 - extent) - posLen / radius;
 			return position * -d * d * .5;
 		}
-		return Vec3::Zero();
+		return Vec<double, D>::Zero();
 	}
 
-	inline void hard(Vec3& position) override {
+	inline void hard(Vec<double, D>& position) override {
 		if (position.lengthSqr() > radius * radius) {
 			position.normalize();
 			position.multiply(radius);

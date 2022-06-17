@@ -2,6 +2,7 @@
 #include <chrono>
 #include "Options.h"
 #include "Surface3.h"
+#include "Surface2.h"
 #include "File.h"
 #include "CylinderBoundary.h"
 #ifdef _OPENMP
@@ -24,7 +25,7 @@ int main() {
 	}
 #endif
 
-	int d = 3;
+	int d = 2;
 	SurfaceBase* surface = nullptr;
 	
 	if (d == 3) {
@@ -33,13 +34,20 @@ int main() {
 			params.attractionMagnitude = 1.0;
 		#endif
 		params.repulsionAnisotropy = Vec3(1.0, 1.0, 1.0);
-		params.boundary = std::shared_ptr<BoundaryCondition>(new CylinderBoundary(.15));
+		params.boundary = std::shared_ptr<BoundaryCondition<3>>(new CylinderBoundary(.15));
 		surface = new Surface3(params, { Surface3::GrowthStrategy::DELAUNAY }, 0);
 
 	} else if (d == 2) {
 
-		printf("UNIMPLEMENTED 2D SURFACES!");
-		exit(1);
+		Surface2::Params params;
+		params.attractionMagnitude = 0.02;
+		params.damping = 0.5;
+		params.dt = 0.5;
+		#ifdef NO_UPDATE
+			params.attractionMagnitude = 1.0;
+		#endif
+		params.boundary = std::shared_ptr<BoundaryCondition<2>>(new SphereBoundary<2>(1.0));
+		surface = new Surface2(params, 0);
 
 	} else {
 		printf("Error: invalid dimensionality! Must select 2 or 3.");

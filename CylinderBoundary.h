@@ -2,7 +2,7 @@
 
 #include "BoundaryCondition.h"
 
-class CylinderBoundary : public BoundaryCondition {
+class CylinderBoundary : public BoundaryCondition<3> {
 
 	double radius;
 

@@ -37,7 +37,7 @@ public:
 		double damping = .15;
 		double noise = .25;
 		Vec<double, D> repulsionAnisotropy = Vec<double, D>::One();
-		std::shared_ptr<BoundaryCondition> boundary = std::shared_ptr<BoundaryCondition>(new SphereBoundary);
+		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
 		double dt = .15;
 
 	};
@@ -61,7 +61,7 @@ protected:
 public:
 	
 	/// Default constructor
-	Surface(Params params, int seed = time(nullptr));
+	Surface(Params params, int seed);
 
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson(int runtimeMs) final override;
