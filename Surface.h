@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_set>
 #include <memory>
+#include <algorithm>
 
 #include "Particle.h"
 #include "SphereBoundary.h"
