@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <array>
+#include <cstring>
 
 #include "Vec.h"
 #include "Utils.h"
