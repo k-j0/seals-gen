@@ -16,6 +16,10 @@
 #include "Utils.h"
 
 
+#pragma warning(push)
+#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+
+
 class SurfaceBase {
 public:
 	virtual void addParticle() = 0;
@@ -25,7 +29,7 @@ public:
 };
 
 
-template<int D>
+template<int D, typename neighbour_iterator_t>
 class Surface : public SurfaceBase {
 
 public:
@@ -59,10 +63,24 @@ protected:
 	// List of particles/vertices that make up the surface
 	std::vector<Particle<D>> particles;
 
+	// Grid - spatial acceleration data structure
+	#ifdef USE_GRID
+		std::unique_ptr<Grid<D>> grid;
+	#endif // USE_GRID
+
+	// Neighbour interfaces - must be implemented in derived classes
+	virtual bool areNeighbours(int i, int j) = 0;
+	virtual neighbour_iterator_t beginNeighbours(int i) = 0;
+	virtual neighbour_iterator_t endNeighbours(int i) = 0;
+
 public:
 	
 	/// Default constructor
 	Surface(Params params, int seed);
+
+	virtual ~Surface() { }
+
+	void update () override;
 
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson(int runtimeMs) final override;
@@ -76,20 +94,120 @@ public:
 protected:
 
 	inline double rand01() { return double(abs(int(rng())) % 10000) / 10000.0; }
+	
+
+	/// Should be called whenever a new particle is added
+	inline void addParticleToGrid(int particle) {
+		#ifdef USE_GRID
+			particles[particle].position.clamp(-0.5, 0.4999);
+			grid->add(particles[particle].position, particle);
+		#endif // USE_GRID
+	}
 
 };
 
 
 
-template<int D>
-Surface<D>::Surface(Surface<D>::Params params, int seed) :
-	params(params),
-	seed(seed),
-	rng(std::mt19937(seed)) { }
+template<int D, typename neighbour_iterator_t>
+Surface<D, neighbour_iterator_t>::Surface(Surface<D, neighbour_iterator_t>::Params params, int seed) :
+		params(params),
+		seed(seed),
+		rng(std::mt19937(seed)) {
+	
+	// create grid
+#ifdef USE_GRID
+	grid = std::make_unique<Grid<D>>(float(params.attractionMagnitude * std::max(1.0, params.repulsionMagnitudeFactor)));
+#endif // USE_GRID
+}
 
 
-template<int D>
-std::string Surface<D>::toJson(int runtimeMs) {
+template<int D, typename neighbour_iterator_t>
+void Surface<D, neighbour_iterator_t>::update() {
+	
+	int numParticles = (int)particles.size();
+
+	// update acceleration values for all particles first without writing to position
+	#pragma omp parallel for
+	for (int i = 0; i < numParticles; ++i) {
+
+		// dampen acceleration
+		particles[i].acceleration.multiply(params.damping * params.damping);
+
+		// boundary restriction force
+		if (params.boundary) {
+			particles[i].acceleration.add(params.boundary->force(particles[i].position));
+		}
+
+		// iterate over non-neighbour particles
+	#ifdef USE_GRID
+		std::array<std::vector<int>*, powConstexpr(3, D)> cells;
+		grid->sample(particles[i].position, cells);
+		for (const std::vector<int>* const cell : cells) if (cell) for (const int& j : *cell) {
+	#else // USE_GRID
+		for (size_t j = 0; j < particles.size(); ++j) {
+	#endif // !USE_GRID
+			if (i == j || areNeighbours(i, j)) continue; // same particle, or nearest neighbours
+
+			// repel if close enough
+			Vec<double, D> towards = particles[j].position - particles[i].position;
+			double noise = (1 + particles[i].noise * params.noise);
+			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
+			double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
+			if (d2 < repulsionLen * repulsionLen) {
+				towards.normalize();
+				towards.multiply(sqrt(d2) - repulsionLen);
+				particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
+			}
+		}
+
+		// iterate over neighbour particles
+		neighbour_iterator_t neighboursBegin = beginNeighbours(i);
+		neighbour_iterator_t neighboursEnd = endNeighbours(i);
+		for (auto it = neighboursBegin; it != neighboursEnd; it++) {
+			int neighbour = *it;
+
+			// attract if far, repel if too close
+			Vec<double, D> towards = particles[neighbour].position - particles[i].position;
+			double d = sqrt(towards.lengthSqr());
+			towards.normalize();
+			towards.multiply(d - params.attractionMagnitude);
+			particles[i].acceleration.add(towards);
+		}
+	}
+
+	// update positions for all particles
+	#pragma omp parallel for
+	for (int i = 0; i < numParticles; ++i) {
+
+		// dampen velocity
+		particles[i].velocity.multiply(params.damping);
+
+		// apply acceleration
+		particles[i].velocity.add(particles[i].acceleration * params.dt);
+
+		// apply velocity
+		particles[i].position.add(particles[i].velocity * params.dt);
+
+		// apply hard boundary
+		if (params.boundary) {
+			params.boundary->hard(particles[i].position);
+		}
+	}
+
+	// Update grid
+	#ifdef USE_GRID
+		grid->clear();
+		for (int i = 0; i < numParticles; ++i) {
+			addParticleToGrid(i);
+		}
+	#endif
+
+	++t;
+}
+
+
+template<int D, typename neighbour_iterator_t>
+std::string Surface<D, neighbour_iterator_t>::toJson(int runtimeMs) {
 
 	std::string json = "{\n"
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
@@ -112,8 +230,8 @@ std::string Surface<D>::toJson(int runtimeMs) {
 	return json + "}";
 }
 
-template<int D>
-void Surface<D>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
+template<int D, typename neighbour_iterator_t>
+void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
 
 	// Header, in front of any surface object in the binary file
 	data.push_back('S'); data.push_back('R'); data.push_back('F');
@@ -139,3 +257,4 @@ void Surface<D>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
 	data.push_back(0);
 }
 
+#pragma warning(pop)

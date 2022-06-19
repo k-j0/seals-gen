@@ -46,7 +46,7 @@ int main() {
 		#ifdef NO_UPDATE
 			params.attractionMagnitude = 1.0;
 		#endif
-		params.boundary = std::shared_ptr<BoundaryCondition<2>>(new SphereBoundary<2>(1.0));
+		params.boundary = std::shared_ptr<BoundaryCondition<2>>(new SphereBoundary<2>(0.5));
 		surface = new Surface2(params, 0);
 
 	} else {

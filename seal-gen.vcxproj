@@ -146,7 +146,6 @@
     <ClCompile Include="BinaryIO.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Surface2.cpp" />
     <ClCompile Include="Surface3.cpp" />

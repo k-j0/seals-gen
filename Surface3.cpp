@@ -8,7 +8,7 @@
 #pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
 
 
-Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int seed) : Surface<3>(params, seed), specificParams(specificParams) {
+Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int seed) : Surface<3, std::unordered_set<int>::const_iterator>(params, seed), specificParams(specificParams) {
 
 	// build initial geometry (icosahedron with radius = attraction magnitude)
 	GeometryPtr icosahedron = Geometry::Icosahedron(params.attractionMagnitude);
@@ -31,11 +31,6 @@ Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int s
 	}
 #undef CONNECT
 
-	// create grid
-#ifdef USE_GRID
-	grid = std::make_unique<Grid>(float(params.attractionMagnitude * std::max(1.0, params.repulsionMagnitudeFactor)));
-#endif // USE_GRID
-
 	for (std::size_t i = 0; i < particles.size(); ++i) {
 		addParticleToGrid(i);
 	}
@@ -56,92 +51,6 @@ void Surface3::addParticle() {
 		printf("Error: invalid growth strategy!");
 		exit(1);
 	}
-}
-
-void Surface3::update () {
-
-	int numParticles = (int)particles.size();
-
-	// update acceleration values for all particles first without writing to position
-	#pragma omp parallel for
-	for (int i = 0; i < numParticles; ++i) {
-
-		// dampen acceleration
-		particles[i].acceleration.multiply(params.damping * params.damping);
-
-		// boundary restriction force
-		if (params.boundary) {
-			particles[i].acceleration.add(params.boundary->force(particles[i].position));
-		}
-		
-
-		// iterate over non-neighbour particles
-#ifdef USE_GRID
-		std::array<std::vector<int>*, 27> cells;
-		grid->sample(particles[i].position, cells);
-		for (const std::vector<int>* const cell : cells) {
-			if (!cell) continue; // invalid cell (e.g. outside -0.5..0.5 region)
-			for (const int& j : *cell) {
-#else // USE_GRID
-		for (size_t j = 0; j < particles.size(); ++j) {
-#endif // !USE_GRID
-				if (i == j || edges[i].find(j) != edges[i].end()) continue; // same particle, or nearest neighbours
-
-				// repel if close enough
-				Vec3 towards = particles[j].position - particles[i].position;
-				double noise = (1 + particles[i].noise * params.noise);
-				double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
-				double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
-				if (d2 < repulsionLen * repulsionLen) {
-					towards.normalize();
-					towards.multiply(sqrt(d2) - repulsionLen);
-					particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
-				}
-#ifdef USE_GRID
-			}
-#endif // USE_GRID
-		}
-
-		// iterate over neighbour particles
-		for (const int& neighbour : edges[i]) {
-
-			// attract if far, repel if too close
-			Vec3 towards = particles[neighbour].position - particles[i].position;
-			double d = sqrt(towards.lengthSqr());
-			towards.normalize();
-			towards.multiply(d - params.attractionMagnitude);
-			particles[i].acceleration.add(towards);
-		}
-	}
-
-	// update positions for all particles
-	#pragma omp parallel for
-	for (int i = 0; i < numParticles; ++i) {
-
-		// dampen velocity
-		particles[i].velocity.multiply(params.damping);
-
-		// apply acceleration
-		particles[i].velocity.add(particles[i].acceleration * params.dt);
-
-		// apply velocity
-		particles[i].position.add(particles[i].velocity * params.dt);
-
-		// apply hard boundary
-		if (params.boundary) {
-			params.boundary->hard(particles[i].position);
-		}
-	}
-
-	// Update grid
-#ifdef USE_GRID
-	grid->clear();
-	for (int i = 0; i < numParticles; ++i) {
-		addParticleToGrid(i);
-	}
-#endif
-
-	++t;
 }
 
 void Surface3::specificJson(std::string& json) {
@@ -282,7 +191,6 @@ void Surface3::addParticleDelaunay() {
 #endif
 
 	addParticleToGrid(particles.size() - 1);
-
 }
 
 void Surface3::addParticleEdgeDelaunay() {
@@ -335,5 +243,4 @@ void Surface3::addParticleEdgeDelaunay() {
 #endif
 
 	addParticleToGrid(particles.size() - 1);
-
 }

@@ -136,6 +136,10 @@ public:
 		return *this;
 	}
 
+	inline void add(const T& f) {
+		for (int i = 0; i < N; ++i) set(i, get(i) + f);
+	}
+
 	inline void add(const Vec<T, N>& v) {
 		for (int i = 0; i < N; ++i) set(i, get(i) + v[i]);
 	}
@@ -163,6 +167,26 @@ public:
 		for (int i = 0; i < N; ++i) set(i, get(i) * f);
 	}
 
+
+	/// Cast to int vector
+	inline Vec<int, N> floor() const {
+		Vec<int, N> ret;
+		for (int i = 0; i < N; ++i) ret.set(i, (int)get(i));
+		return ret;
+	}
+
+	
+	/// Convert to contiguous index
+	/// i.e. [ 0, 0, 0 ] -> 0, [ 1, 1, 1 ] -> 1 + width + width * height, [ 0, 2 ] -> 2 * width, etc.
+	inline int index(const int& range) const {
+		int idx = 0;
+		for (int i = 0; i < N; ++i) {
+			idx += int(get(i) * std::pow(range, i));
+		}
+		return idx;
+	}
+
+
 	/// Linear interpolation
 	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, double t) {
 		Vec<T, N> ret;
@@ -171,6 +195,41 @@ public:
 	}
 
 
+	/// Component-wise clamp
+	inline void clamp(const T& a, const T& b) {
+		for (int i = 0; i < N; ++i) {
+			if (get(i) < a) set(i, a);
+			else if (get(i) > b) set(i, b);
+		}
+	}
+
+
+	/// Comparisons
+	inline bool operator< (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) < v) return true;
+		return false;
+	}
+	inline bool operator<= (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) <= v) return true;
+		return false;
+	}
+	inline bool operator> (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) > v) return true;
+		return false;
+	}
+	inline bool operator>= (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) >= v) return true;
+		return false;
+	}
+	inline bool operator== (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) == v) return true;
+		return false;
+	}
+	inline bool operator!= (const T& v) const {
+		for (int i = 0; i < N; ++i) if (get(i) != v) return true;
+		return false;
+	}
+	
 
 	// String conversion
 	inline std::string toString() const {
@@ -187,8 +246,9 @@ public:
 
 
 // Custom operator for hadamard (elementwise) product
-// Two Vec<T, N> instances v1 and v2 can be elementwise-multiplied using v1 <o> v2
+// Two Vec<T, N> instances v1 and v2 can be elementwise-multiplied using v1 <hadamard> v2
 template<typename T, int N> struct HadamardVecLhs { Vec<T, N> lhs; };
+#pragma warning(suppress: 26812)
 enum { hadamard };
 template<typename T, int N>
 HadamardVecLhs<T, N> operator<(const Vec<T, N>& lhs, decltype(hadamard)) {
