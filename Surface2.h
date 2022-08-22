@@ -46,7 +46,7 @@ protected:
 		const Vec2 neighbourToNeighbour = (left - right).normalized();
 		const Vec2 normal (neighbourToNeighbour.Y(), -neighbourToNeighbour.X());
 		const Vec2 toJ = (particles[j].position - particles[i].position).normalized();
-		if (normal <dot> toJ < 0) {
+		if (normal.dot(toJ) < 0) {
 			return specificParams.channelRepulsionMultiplier;
 		} else {
 			return 1.0;

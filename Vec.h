@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <string>
+#include "warnings.h"
 
 /// Utility class to represent an n-component vector
 template<typename T, int N>
@@ -16,10 +17,10 @@ public:
 
 	/// Default constructor. Does not initialize any values.
 	// disable warning about uninitialized components - this is intended here; calling code is expected to set the components up after declaration of the vector.
-#pragma warning(push)
-#pragma warning(disable: 26495)
+WARNING_PUSH;
+WARNING_DISABLE_UNINITIALIZED_COMPONENT;
 	inline Vec() {}
-#pragma warning(pop)
+WARNING_POP;
 
 	// Component constructors
 	// Variadic params for ease of use - should pass N components exactly!
@@ -167,6 +168,24 @@ public:
 		for (int i = 0; i < N; ++i) set(i, get(i) * f);
 	}
 
+	/// Dot product
+	inline T dot(const Vec<T, N>& v) const {
+		T result = 0;
+		for (int i = 0; i < N; ++i) {
+			result += get(i) * v.get(i);
+		}
+		return result;
+	}
+	
+	/// Hadamard product
+	inline Vec<T, N> hadamard(const Vec<T, N>& v) const {
+		Vec<T, N> result;
+		for (int i = 0; i < N; ++i) {
+			result.set(i, get(i) * v.get(i));
+		}
+		return result;
+	}
+
 
 	/// Cast to int vector
 	inline Vec<int, N> floor() const {
@@ -242,43 +261,6 @@ public:
 	}
 
 };
-
-
-
-#pragma warning(push)
-#pragma warning(disable: 26812) // Ignore unscoped enum warnings - the following implementation specifically relies on unscoped enums
-
-// Custom operator for dot product
-// Two Vec<T, N> instances v1 and v2 can be dotted together using v1 <dot> v2
-enum { dot };
-template<typename T, int N> struct DotVecLhs { Vec<T, N> lhs; };
-template<typename T, int N>
-DotVecLhs<T, N> operator<(const Vec<T, N>& lhs, decltype(dot)) {
-	return { lhs };
-}
-template<typename T, int N>
-Vec<T, N> operator>(const DotVecLhs<T, N>& lhs, const Vec<T, N>& rhs) {
-	double result = 0.0;
-	for (int i = 0; i < N; ++i) result += lhs.lhs[i] * rhs[i];
-	return result;
-}
-
-// Custom operator for hadamard (elementwise) product
-// Two Vec<T, N> instances v1 and v2 can be elementwise-multiplied using v1 <hadamard> v2
-enum { hadamard };
-template<typename T, int N> struct HadamardVecLhs { Vec<T, N> lhs; };
-template<typename T, int N>
-HadamardVecLhs<T, N> operator<(const Vec<T, N>& lhs, decltype(hadamard)) {
-	return { lhs };
-}
-template<typename T, int N>
-Vec<T, N> operator>(const HadamardVecLhs<T, N>& lhs, const Vec<T, N>& rhs) {
-	Vec<T, N> result;
-	for (int i = 0; i < N; ++i) result.set(i, lhs.lhs[i] * rhs[i]);
-	return result;
-}
-
-#pragma warning(pop)
 
 
 

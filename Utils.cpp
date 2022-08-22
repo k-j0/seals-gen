@@ -3,9 +3,13 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#elif defined(__CYGWIN__)
+#include <winsock.h>
 #else
 #include <unistd.h>
 #endif
+
+#include "warnings.h"
 
 
 std::string getMachineName() {
@@ -19,10 +23,10 @@ std::string getMachineName() {
 	char str[64];
 	std::size_t _;
 	wcstombs_s(&_, str, name, 64);
-#pragma warning(push)
-#pragma warning(disable: 6054) 
-	result = std::string(str);
-#pragma warning(pop)
+	WARNING_PUSH;
+	WARNING_DISABLE_STRING_NUL_TERMINATED;
+		result = std::string(str);
+	WARNING_POP;
 #else
 	char name[64];
 	gethostname(name, 64);

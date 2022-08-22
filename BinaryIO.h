@@ -22,7 +22,7 @@ namespace bio {
 
 	/// Reads a value of trivial type T (no pointers) from data as bytes
 	template<typename T>
-	T readSimple(const std::vector<uint8_t>& data, int& at) {
+	T readSimple(const std::vector<uint8_t>& data, size_t& at) {
 		union {
 			T original;
 			uint8_t bytes[sizeof(T)];
@@ -37,7 +37,7 @@ namespace bio {
 
 	void writeString(std::vector<uint8_t>& data, const std::string& val);
 
-	std::string readString(const std::vector<uint8_t>& data, int& at);
+	std::string readString(const std::vector<uint8_t>& data, size_t& at);
 
 	template<typename T, int N>
 	void writeVec (std::vector<uint8_t>& data, const Vec<T, N>& val) {
@@ -47,7 +47,7 @@ namespace bio {
 	}
 
 	template<typename T, int N>
-	Vec<T, N> readVec (const std::vector<uint8_t>& data, int& at) {
+	Vec<T, N> readVec (const std::vector<uint8_t>& data, size_t& at) {
 		Vec<T, N> r;
 		for (int i = 0; i < N; ++i) {
 			r.set(i, readSimple<T>(data, at));

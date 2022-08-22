@@ -14,14 +14,16 @@
 #include "Options.h"
 #include "BinaryIO.h"
 #include "Utils.h"
+#include "warnings.h"
 
 
-#pragma warning(push)
-#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+WARNING_PUSH;
+WARNING_DISABLE_OMP_PRAGMAS;
 
 
 class SurfaceBase {
 public:
+	virtual ~SurfaceBase() { }
 	virtual void addParticle() = 0;
 	virtual void update() = 0;
 	virtual std::string toJson(int runtimeMs) = 0;
@@ -81,7 +83,7 @@ public:
 	/// Default constructor
 	Surface(Params params, int seed);
 
-	virtual ~Surface() { }
+	virtual ~Surface() override { }
 
 	void update () override;
 
@@ -159,7 +161,7 @@ void Surface<D, neighbour_iterator_t>::update() {
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
 				towards.multiply(sqrt(d2) - repulsionLen);
-				particles[i].acceleration.add(towards <hadamard> params.repulsionAnisotropy);
+				particles[i].acceleration.add(towards.hadamard(params.repulsionAnisotropy));
 			}
 		}
 
@@ -260,4 +262,4 @@ void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8
 	data.push_back(0);
 }
 
-#pragma warning(pop)
+WARNING_POP;

@@ -1,7 +1,9 @@
+
 #include "Surface2.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Surface<2, std::array<int, 2>::const_iterator>(params, seed), specificParams(specificParams) {
 	

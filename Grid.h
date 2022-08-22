@@ -63,7 +63,7 @@ public:
 	void add(Vec<double, D> pos, int value) {
 		int idx = cellFromPosition(pos);
 		assert(idx >= 0);
-		assert(idx < grid.size());
+		assert((size_t)idx < grid.size());
 		grid[idx].push_back(value);
 	}
 

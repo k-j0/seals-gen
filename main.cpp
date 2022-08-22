@@ -8,9 +8,10 @@
 #ifdef _OPENMP
 	#include <omp.h>
 #endif
+#include "warnings.h"
 
 
-#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+WARNING_DISABLE_OMP_PRAGMAS;
 
 
 int main() {
@@ -54,7 +55,7 @@ int main() {
 		exit(1);
 	}
 
-	const int iterations = 6000;
+	const int iterations = 600;
 	std::string snapshotsJson = "[\n";
 	std::vector<uint8_t> snapshotsBinary;
 	bool first = true;

@@ -4,8 +4,10 @@
 #include "Options.h"
 #include "Geometry.h"
 #include "SphericalDelaunay.h"
+#include "warnings.h"
 
-#pragma warning(disable: 6993) // Ignore MSVC complaining about omp pragmas
+
+WARNING_DISABLE_OMP_PRAGMAS;
 
 
 Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int seed) : Surface<3, std::unordered_set<int>::const_iterator>(params, seed), specificParams(specificParams) {
@@ -212,8 +214,8 @@ void Surface3::addParticleEdgeDelaunay() {
 			}
 		}
 		assert(b > -1);
-		assert(a < particles.size());
-		assert(b < particles.size());
+		assert((size_t)a < particles.size());
+		assert((size_t)b < particles.size());
 		Vec3 dir = particles[a].position - particles[b].position;
 		dir.normalize();
 		if (rand01() < abs(dir.Z())) {
@@ -222,8 +224,8 @@ void Surface3::addParticleEdgeDelaunay() {
 	} while (true);
 
 	// place particle between the two selected on the unit sphere
-	assert(a > -1 && a < particles.size());
-	assert(b > -1 && b < particles.size());
+	assert(a > -1 && (size_t)a < particles.size());
+	assert(b > -1 && (size_t)b < particles.size());
 	p.spherical = particles[a].spherical + particles[b].spherical;
 	p.spherical.normalize();
 
