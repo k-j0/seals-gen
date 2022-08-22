@@ -3,8 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-# Exclude executable built with g++
+# Exclude binaries built with g++
 *.exe
+*.o
 
 # User-specific files
 *.rsuser

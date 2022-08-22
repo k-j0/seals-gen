@@ -1,3 +1,21 @@
 
-seals: *.cpp *.h
-	g++ -fopenmp -O3 -m64 -Wall -o seals *.cpp -std=c++14
+OUT := seals
+CC := g++
+CFLAGS := -fopenmp -O3 -Wall -std=c++14 -m64
+
+SOURCES := $(wildcard *.cpp)
+OBJECTS := $(SOURCES:.cpp=.o)
+
+.PHONY: all clean
+
+all: $(OUT)
+
+$(OUT): $(OBJECTS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OUT)
+	rm -f *.o
