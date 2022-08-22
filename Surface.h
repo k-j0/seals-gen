@@ -73,6 +73,9 @@ protected:
 	virtual neighbour_iterator_t beginNeighbours(int i) = 0;
 	virtual neighbour_iterator_t endNeighbours(int i) = 0;
 
+	// Must be implemented in derived classes - returns a repulsion multiplier for two particles i and j
+	virtual double getRepulsion(int i, int j) = 0;
+
 public:
 	
 	/// Default constructor
@@ -123,7 +126,7 @@ Surface<D, neighbour_iterator_t>::Surface(Surface<D, neighbour_iterator_t>::Para
 
 template<int D, typename neighbour_iterator_t>
 void Surface<D, neighbour_iterator_t>::update() {
-	
+
 	int numParticles = (int)particles.size();
 
 	// update acceleration values for all particles first without writing to position
@@ -151,7 +154,7 @@ void Surface<D, neighbour_iterator_t>::update() {
 			// repel if close enough
 			Vec<double, D> towards = particles[j].position - particles[i].position;
 			double noise = (1 + particles[i].noise * params.noise);
-			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor;
+			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getRepulsion(i, j);
 			double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();

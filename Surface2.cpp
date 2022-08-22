@@ -3,7 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-Surface2::Surface2(Params params, int seed) : Surface<2, std::array<int, 2>::const_iterator>(params, seed) {
+Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Surface<2, std::array<int, 2>::const_iterator>(params, seed), specificParams(specificParams) {
 	
 	// build initial equilateral triangle with side length = attraction magnitude
 	double radius = params.attractionMagnitude;

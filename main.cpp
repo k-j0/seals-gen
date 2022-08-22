@@ -40,21 +40,21 @@ int main() {
 	} else if (d == 2) {
 
 		Surface2::Params params;
-		params.attractionMagnitude = 0.02;
+		params.attractionMagnitude = 0.01;
 		params.damping = 0.5;
 		params.dt = 0.5;
 		#ifdef NO_UPDATE
 			params.attractionMagnitude = 1.0;
 		#endif
 		params.boundary = std::shared_ptr<BoundaryCondition<2>>(new SphereBoundary<2>(0.5));
-		surface = new Surface2(params, 0);
+		surface = new Surface2(params, { 1.15 }, 0);
 
 	} else {
 		printf("Error: invalid dimensionality! Must select 2 or 3.");
 		exit(1);
 	}
 
-	const int iterations = 600;
+	const int iterations = 6000;
 	std::string snapshotsJson = "[\n";
 	std::vector<uint8_t> snapshotsBinary;
 	bool first = true;
@@ -76,6 +76,7 @@ int main() {
 		// recurrent outputs (console + snapshots)
 		if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
 			printf("%d %%...\r", t * 100 / iterations);
+			fflush(stdout);
 			if (!first) {
 				snapshotsJson += ",\n";
 			}

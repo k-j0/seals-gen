@@ -43,6 +43,10 @@ protected:
 		return edges[i].end();
 	}
 
+	inline double getRepulsion(int i, int j) override {
+		return 1.0; // no repulsion deltas in 3D surfaces
+	}
+
 public:
 	
 	Surface3(Params params, SpecificParams specificParams, int seed = time(nullptr));
