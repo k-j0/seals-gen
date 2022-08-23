@@ -7,9 +7,9 @@
 class CylinderBoundary : public BoundaryCondition<3> {
 
 	real_t radius;
+	real_t maxRadius;
 	real_t extent;
 	real_t growthRate;
-	real_t maxRadius;
 
 public:
 
