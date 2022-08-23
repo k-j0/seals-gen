@@ -12,6 +12,26 @@ class Vec {
 
 	T components[N];
 
+	// Variadic component setter - base case
+	template<typename T0>
+	void setComponents(int idx, T0 first) {
+		set(idx, (T)first);
+		// Any missing arguments are 0-initialized
+		for (int i = idx + 1; i < N; ++i) {
+			set(i, (T)0);
+		}
+	}
+
+	// Variadic component setter - recursive case
+	template<typename T0, typename... Ts>
+	void setComponents(int idx, T0 first, Ts... args) {
+		set(idx, (T)first);
+		++idx;
+		if (idx < N) {
+			setComponents(idx, args...);
+		}
+	}
+
 public:
 
 
@@ -23,16 +43,11 @@ WARNING_DISABLE_UNINITIALIZED_COMPONENT;
 WARNING_POP;
 
 	// Component constructors
-	// Variadic params for ease of use - should pass N components exactly!
-	template<typename TT>
-	inline Vec(TT x, ...) {
-		components[0] = (T)x;
-		va_list arguments;
-		va_start(arguments, x);
-		for (int comp = 1; comp < N; ++comp) {
-			components[comp] = (T)va_arg(arguments, TT);
-		}
-		va_end(arguments);
+	// Variadic params for ease of use - should pass at most N components, rest will be discarded.
+	// Any components not passed are initialized to 0.
+	template<typename T0, typename... Ts>
+	inline Vec(T0 x, Ts... args) {
+		setComponents(0, x, args...);
 	}
 
 	static inline Vec<T, N> Zero() {

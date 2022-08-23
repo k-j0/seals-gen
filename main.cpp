@@ -15,7 +15,7 @@ WARNING_DISABLE_OMP_PRAGMAS;
 
 
 int main() {
-
+	
 	printf("Starting...\n\n");
 
 #ifdef _OPENMP
