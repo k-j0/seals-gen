@@ -19,7 +19,7 @@ Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Sur
 	neighbourIndices.push_back({ 1, 0 });
 
 	for (std::size_t i = 0; i < particles.size(); ++i) {
-		addParticleToGrid(i);
+		addParticleToGrid((int)i);
 	}
 }
 
@@ -30,7 +30,7 @@ void Surface2::addParticle() {
 	int b = neighbourIndices[a][1];
 
 	// insert new particle
-	int c = particles.size();
+	int c = (int)particles.size();
 	particles.push_back(Particle<2>::FromPosition((particles[a].position + particles[b].position) * 0.5));
 	neighbourIndices.push_back({ a, b });
 

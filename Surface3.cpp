@@ -34,7 +34,7 @@ Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int s
 #undef CONNECT
 
 	for (std::size_t i = 0; i < particles.size(); ++i) {
-		addParticleToGrid(i);
+		addParticleToGrid((int)i);
 	}
 }
 
@@ -92,13 +92,13 @@ void Surface3::specificJson(std::string& json) {
 void Surface3::specificBinary(std::vector<uint8_t>& data) {
 
 	// Particle positions
-	bio::writeSimple<int>(data, particles.size());
+	bio::writeSimple<int>(data, (int)particles.size());
 	for (size_t i = 0; i < particles.size(); ++i) {
 		bio::writeVec(data, particles[i].position);
 	}
 
 	// Triangle indices
-	bio::writeSimple<int>(data, triangles.size());
+	bio::writeSimple<int>(data, (int)triangles.size());
 	for (size_t i = 0; i < triangles.size(); ++i) {
 		bio::writeVec(data, triangles[i]);
 	}
@@ -158,7 +158,7 @@ void Surface3::addParticleEdge() {
 		}
 	}
 
-	addParticleToGrid(particles.size() - 1);
+	addParticleToGrid((int)particles.size() - 1);
 
 }
 
@@ -192,7 +192,7 @@ void Surface3::addParticleDelaunay() {
 	p.position = p.spherical;
 #endif
 
-	addParticleToGrid(particles.size() - 1);
+	addParticleToGrid((int)particles.size() - 1);
 }
 
 void Surface3::addParticleEdgeDelaunay() {
@@ -244,5 +244,5 @@ void Surface3::addParticleEdgeDelaunay() {
 	p.position = p.spherical;
 #endif
 
-	addParticleToGrid(particles.size() - 1);
+	addParticleToGrid((int)particles.size() - 1);
 }
