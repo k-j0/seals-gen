@@ -2,6 +2,8 @@
 
 #include "Surface.h"
 
+#include "real.h"
+
 
 /// Represents a self-avoiding surface in 2D space, made up of a certain number of particles connected in one line
 class Surface2 : public Surface<2, std::array<int, 2>::const_iterator> {
@@ -9,7 +11,7 @@ class Surface2 : public Surface<2, std::array<int, 2>::const_iterator> {
 public:
 
 	struct SpecificParams {
-		double channelRepulsionMultiplier = 1.0; // if != 1, repulsion across fingers will be different from repulsion across channels
+		real_t channelRepulsionMultiplier = 1.0; // if != 1, repulsion across fingers will be different from repulsion across channels
 	};
 
 private:
@@ -33,7 +35,7 @@ protected:
 		return neighbourIndices[i].end();
 	}
 
-	inline double getRepulsion(int i, int j) override {
+	inline real_t getRepulsion(int i, int j) override {
 		if (specificParams.channelRepulsionMultiplier == 1.0) return 1.0;
 
 		// Figure out whether the two particles are likely interfacing across a finger or a channel

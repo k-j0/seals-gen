@@ -15,6 +15,8 @@
 #include <vector>
 #include <tuple>
 
+#include "real.h"
+
 namespace delaunator {
 
     //@see https://stackoverflow.com/questions/33333363/built-in-mod-vs-custom-mod-function-improve-the-performance-of-modulus-op/33333636#33333636
@@ -23,99 +25,99 @@ namespace delaunator {
     }
 
     // Kahan and Babuska summation, Neumaier variant; accumulates less FP error
-    inline double sum(const std::vector<double>& x) {
-        double sum = x[0];
-        double err = 0.0;
+    inline real_t sum(const std::vector<real_t>& x) {
+        real_t sum = x[0];
+        real_t err = 0.0;
 
         for (size_t i = 1; i < x.size(); i++) {
-            const double k = x[i];
-            const double m = sum + k;
+            const real_t k = x[i];
+            const real_t m = sum + k;
             err += std::fabs(sum) >= std::fabs(k) ? sum - m + k : k - m + sum;
             sum = m;
         }
         return sum + err;
     }
 
-    inline double dist(
-        const double ax,
-        const double ay,
-        const double bx,
-        const double by) {
-        const double dx = ax - bx;
-        const double dy = ay - by;
+    inline real_t dist(
+        const real_t ax,
+        const real_t ay,
+        const real_t bx,
+        const real_t by) {
+        const real_t dx = ax - bx;
+        const real_t dy = ay - by;
         return dx * dx + dy * dy;
     }
 
-    inline double circumradius(
-        const double ax,
-        const double ay,
-        const double bx,
-        const double by,
-        const double cx,
-        const double cy) {
-        const double dx = bx - ax;
-        const double dy = by - ay;
-        const double ex = cx - ax;
-        const double ey = cy - ay;
+    inline real_t circumradius(
+        const real_t ax,
+        const real_t ay,
+        const real_t bx,
+        const real_t by,
+        const real_t cx,
+        const real_t cy) {
+        const real_t dx = bx - ax;
+        const real_t dy = by - ay;
+        const real_t ex = cx - ax;
+        const real_t ey = cy - ay;
 
-        const double bl = dx * dx + dy * dy;
-        const double cl = ex * ex + ey * ey;
-        const double d = dx * ey - dy * ex;
+        const real_t bl = dx * dx + dy * dy;
+        const real_t cl = ex * ex + ey * ey;
+        const real_t d = dx * ey - dy * ex;
 
-        const double x = (ey * bl - dy * cl) * 0.5 / d;
-        const double y = (dx * cl - ex * bl) * 0.5 / d;
+        const real_t x = (ey * bl - dy * cl) * (real_t)0.5 / d;
+        const real_t y = (dx * cl - ex * bl) * (real_t)0.5 / d;
 
         if ((bl > 0.0 || bl < 0.0) && (cl > 0.0 || cl < 0.0) && (d > 0.0 || d < 0.0)) {
             return x * x + y * y;
         } else {
-            return std::numeric_limits<double>::max();
+            return std::numeric_limits<real_t>::max();
         }
     }
 
     inline bool orient(
-        const double px,
-        const double py,
-        const double qx,
-        const double qy,
-        const double rx,
-        const double ry) {
+        const real_t px,
+        const real_t py,
+        const real_t qx,
+        const real_t qy,
+        const real_t rx,
+        const real_t ry) {
         return (qy - py) * (rx - qx) - (qx - px) * (ry - qy) < 0.0;
     }
 
-    inline std::pair<double, double> circumcenter(
-        const double ax,
-        const double ay,
-        const double bx,
-        const double by,
-        const double cx,
-        const double cy) {
-        const double dx = bx - ax;
-        const double dy = by - ay;
-        const double ex = cx - ax;
-        const double ey = cy - ay;
+    inline std::pair<real_t, real_t> circumcenter(
+        const real_t ax,
+        const real_t ay,
+        const real_t bx,
+        const real_t by,
+        const real_t cx,
+        const real_t cy) {
+        const real_t dx = bx - ax;
+        const real_t dy = by - ay;
+        const real_t ex = cx - ax;
+        const real_t ey = cy - ay;
 
-        const double bl = dx * dx + dy * dy;
-        const double cl = ex * ex + ey * ey;
-        const double d = dx * ey - dy * ex;
+        const real_t bl = dx * dx + dy * dy;
+        const real_t cl = ex * ex + ey * ey;
+        const real_t d = dx * ey - dy * ex;
 
-        const double x = ax + (ey * bl - dy * cl) * 0.5 / d;
-        const double y = ay + (dx * cl - ex * bl) * 0.5 / d;
+        const real_t x = ax + (ey * bl - dy * cl) * (real_t)0.5 / d;
+        const real_t y = ay + (dx * cl - ex * bl) * (real_t)0.5 / d;
 
         return std::make_pair(x, y);
     }
 
     struct compare {
 
-        std::vector<double> const& coords;
-        double cx;
-        double cy;
+        std::vector<real_t> const& coords;
+        real_t cx;
+        real_t cy;
 
         bool operator()(std::size_t i, std::size_t j) {
-            const double d1 = dist(coords[2 * i], coords[2 * i + 1], cx, cy);
-            const double d2 = dist(coords[2 * j], coords[2 * j + 1], cx, cy);
-            const double diff1 = d1 - d2;
-            const double diff2 = coords[2 * i] - coords[2 * j];
-            const double diff3 = coords[2 * i + 1] - coords[2 * j + 1];
+            const real_t d1 = dist(coords[2 * i], coords[2 * i + 1], cx, cy);
+            const real_t d2 = dist(coords[2 * j], coords[2 * j + 1], cx, cy);
+            const real_t diff1 = d1 - d2;
+            const real_t diff2 = coords[2 * i] - coords[2 * j];
+            const real_t diff3 = coords[2 * i + 1] - coords[2 * j + 1];
 
             if (diff1 > 0.0 || diff1 < 0.0) {
                 return diff1 < 0;
@@ -128,48 +130,48 @@ namespace delaunator {
     };
 
     inline bool in_circle(
-        const double ax,
-        const double ay,
-        const double bx,
-        const double by,
-        const double cx,
-        const double cy,
-        const double px,
-        const double py) {
-        const double dx = ax - px;
-        const double dy = ay - py;
-        const double ex = bx - px;
-        const double ey = by - py;
-        const double fx = cx - px;
-        const double fy = cy - py;
+        const real_t ax,
+        const real_t ay,
+        const real_t bx,
+        const real_t by,
+        const real_t cx,
+        const real_t cy,
+        const real_t px,
+        const real_t py) {
+        const real_t dx = ax - px;
+        const real_t dy = ay - py;
+        const real_t ex = bx - px;
+        const real_t ey = by - py;
+        const real_t fx = cx - px;
+        const real_t fy = cy - py;
 
-        const double ap = dx * dx + dy * dy;
-        const double bp = ex * ex + ey * ey;
-        const double cp = fx * fx + fy * fy;
+        const real_t ap = dx * dx + dy * dy;
+        const real_t bp = ex * ex + ey * ey;
+        const real_t cp = fx * fx + fy * fy;
 
         return (dx * (ey * cp - bp * fy) -
             dy * (ex * cp - bp * fx) +
             ap * (ex * fy - ey * fx)) < 0.0;
     }
 
-    constexpr double EPSILON = std::numeric_limits<double>::epsilon();
+    constexpr real_t EPSILON = std::numeric_limits<real_t>::epsilon();
     constexpr std::size_t INVALID_INDEX = std::numeric_limits<std::size_t>::max();
 
-    inline bool check_pts_equal(double x1, double y1, double x2, double y2) {
+    inline bool check_pts_equal(real_t x1, real_t y1, real_t x2, real_t y2) {
         return std::fabs(x1 - x2) <= EPSILON &&
             std::fabs(y1 - y2) <= EPSILON;
     }
 
     // monotonically increases with real angle, but doesn't need expensive trigonometry
-    inline double pseudo_angle(const double dx, const double dy) {
-        const double p = dx / (std::abs(dx) + std::abs(dy));
-        return (dy > 0.0 ? 3.0 - p : 1.0 + p) / 4.0; // [0..1)
+    inline real_t pseudo_angle(const real_t dx, const real_t dy) {
+        const real_t p = dx / (std::abs(dx) + std::abs(dy));
+        return (dy > 0.0 ? (real_t)3 - p : (real_t)1 + p) / (real_t)4; // [0..1)
     }
 
     struct DelaunatorPoint {
         std::size_t i;
-        double x;
-        double y;
+        real_t x;
+        real_t y;
         std::size_t t;
         std::size_t prev;
         std::size_t next;
@@ -179,7 +181,7 @@ namespace delaunator {
     class Delaunator {
 
     public:
-        std::vector<double> const& coords;
+        std::vector<real_t> const& coords;
         std::vector<std::size_t> triangles;
         std::vector<std::size_t> halfedges;
         std::vector<std::size_t> hull_prev;
@@ -187,19 +189,19 @@ namespace delaunator {
         std::vector<std::size_t> hull_tri;
         std::size_t hull_start;
 
-        Delaunator(std::vector<double> const& in_coords);
+        Delaunator(std::vector<real_t> const& in_coords);
 
-        double get_hull_area();
+        real_t get_hull_area();
 
     private:
         std::vector<std::size_t> m_hash;
-        double m_center_x;
-        double m_center_y;
+        real_t m_center_x;
+        real_t m_center_y;
         std::size_t m_hash_size;
         std::vector<std::size_t> m_edge_stack;
 
         std::size_t legalize(std::size_t a);
-        std::size_t hash_key(double x, double y) const;
+        std::size_t hash_key(real_t x, real_t y) const;
         std::size_t add_triangle(
             std::size_t i0,
             std::size_t i1,
@@ -210,7 +212,7 @@ namespace delaunator {
         void link(std::size_t a, std::size_t b);
     };
 
-    Delaunator::Delaunator(std::vector<double> const& in_coords)
+    Delaunator::Delaunator(std::vector<real_t> const& in_coords)
         : coords(in_coords),
         triangles(),
         halfedges(),
@@ -225,16 +227,16 @@ namespace delaunator {
         m_edge_stack() {
         std::size_t n = coords.size() >> 1;
 
-        double max_x = std::numeric_limits<double>::min();
-        double max_y = std::numeric_limits<double>::min();
-        double min_x = std::numeric_limits<double>::max();
-        double min_y = std::numeric_limits<double>::max();
+        real_t max_x = std::numeric_limits<real_t>::min();
+        real_t max_y = std::numeric_limits<real_t>::min();
+        real_t min_x = std::numeric_limits<real_t>::max();
+        real_t min_y = std::numeric_limits<real_t>::max();
         std::vector<std::size_t> ids;
         ids.reserve(n);
 
         for (std::size_t i = 0; i < n; i++) {
-            const double x = coords[2 * i];
-            const double y = coords[2 * i + 1];
+            const real_t x = coords[2 * i];
+            const real_t y = coords[2 * i + 1];
 
             if (x < min_x) min_x = x;
             if (y < min_y) min_y = y;
@@ -243,9 +245,9 @@ namespace delaunator {
 
             ids.push_back(i);
         }
-        const double cx = (min_x + max_x) / 2;
-        const double cy = (min_y + max_y) / 2;
-        double min_dist = std::numeric_limits<double>::max();
+        const real_t cx = (min_x + max_x) / 2;
+        const real_t cy = (min_y + max_y) / 2;
+        real_t min_dist = std::numeric_limits<real_t>::max();
 
         std::size_t i0 = INVALID_INDEX;
         std::size_t i1 = INVALID_INDEX;
@@ -253,38 +255,38 @@ namespace delaunator {
 
         // pick a seed point close to the centroid
         for (std::size_t i = 0; i < n; i++) {
-            const double d = dist(cx, cy, coords[2 * i], coords[2 * i + 1]);
+            const real_t d = dist(cx, cy, coords[2 * i], coords[2 * i + 1]);
             if (d < min_dist) {
                 i0 = i;
                 min_dist = d;
             }
         }
 
-        const double i0x = coords[2 * i0];
-        const double i0y = coords[2 * i0 + 1];
+        const real_t i0x = coords[2 * i0];
+        const real_t i0y = coords[2 * i0 + 1];
 
-        min_dist = std::numeric_limits<double>::max();
+        min_dist = std::numeric_limits<real_t>::max();
 
         // find the point closest to the seed
         for (std::size_t i = 0; i < n; i++) {
             if (i == i0) continue;
-            const double d = dist(i0x, i0y, coords[2 * i], coords[2 * i + 1]);
+            const real_t d = dist(i0x, i0y, coords[2 * i], coords[2 * i + 1]);
             if (d < min_dist && d > 0.0) {
                 i1 = i;
                 min_dist = d;
             }
         }
 
-        double i1x = coords[2 * i1];
-        double i1y = coords[2 * i1 + 1];
+        real_t i1x = coords[2 * i1];
+        real_t i1y = coords[2 * i1 + 1];
 
-        double min_radius = std::numeric_limits<double>::max();
+        real_t min_radius = std::numeric_limits<real_t>::max();
 
         // find the third point which forms the smallest circumcircle with the first two
         for (std::size_t i = 0; i < n; i++) {
             if (i == i0 || i == i1) continue;
 
-            const double r = circumradius(
+            const real_t r = circumradius(
                 i0x, i0y, i1x, i1y, coords[2 * i], coords[2 * i + 1]);
 
             if (r < min_radius) {
@@ -293,12 +295,12 @@ namespace delaunator {
             }
         }
 
-        if (!(min_radius < std::numeric_limits<double>::max())) {
+        if (!(min_radius < std::numeric_limits<real_t>::max())) {
             throw std::runtime_error("not triangulation");
         }
 
-        double i2x = coords[2 * i2];
-        double i2y = coords[2 * i2 + 1];
+        real_t i2x = coords[2 * i2];
+        real_t i2y = coords[2 * i2 + 1];
 
         if (orient(i0x, i0y, i1x, i1y, i2x, i2y)) {
             std::swap(i1, i2);
@@ -341,12 +343,12 @@ namespace delaunator {
         triangles.reserve(max_triangles * 3);
         halfedges.reserve(max_triangles * 3);
         add_triangle(i0, i1, i2, INVALID_INDEX, INVALID_INDEX, INVALID_INDEX);
-        double xp = std::numeric_limits<double>::quiet_NaN();
-        double yp = std::numeric_limits<double>::quiet_NaN();
+        real_t xp = std::numeric_limits<real_t>::quiet_NaN();
+        real_t yp = std::numeric_limits<real_t>::quiet_NaN();
         for (std::size_t k = 0; k < n; k++) {
             const std::size_t i = ids[k];
-            const double x = coords[2 * i];
-            const double y = coords[2 * i + 1];
+            const real_t x = coords[2 * i];
+            const real_t y = coords[2 * i + 1];
 
             // skip near-duplicate points
             if (k > 0 && check_pts_equal(x, y, xp, yp)) continue;
@@ -433,8 +435,8 @@ namespace delaunator {
         }
     }
 
-    double Delaunator::get_hull_area() {
-        std::vector<double> hull_area;
+    real_t Delaunator::get_hull_area() {
+        std::vector<real_t> hull_area;
         size_t e = hull_start;
         do {
             hull_area.push_back((coords[2 * e] - coords[2 * hull_prev[e]]) * (coords[2 * e + 1] + coords[2 * hull_prev[e] + 1]));
@@ -542,11 +544,11 @@ namespace delaunator {
         return ar;
     }
 
-    inline std::size_t Delaunator::hash_key(const double x, const double y) const {
-        const double dx = x - m_center_x;
-        const double dy = y - m_center_y;
+    inline std::size_t Delaunator::hash_key(const real_t x, const real_t y) const {
+        const real_t dx = x - m_center_x;
+        const real_t dy = y - m_center_y;
         return fast_mod(
-            static_cast<std::size_t>(std::llround(std::floor(pseudo_angle(dx, dy) * static_cast<double>(m_hash_size)))),
+            static_cast<std::size_t>(std::llround(std::floor(pseudo_angle(dx, dy) * static_cast<real_t>(m_hash_size)))),
             m_hash_size);
     }
 

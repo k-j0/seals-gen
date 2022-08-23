@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <string>
 #include "warnings.h"
+#include "real.h"
 
 /// Utility class to represent an n-component vector
 template<typename T, int N>
@@ -125,13 +126,13 @@ WARNING_POP;
 
 	/// Normalized vector
 	inline Vec<T, N> normalized() const {
-		T length = (T)sqrt((double)lengthSqr());
+		T length = (T)sqrt((real_t)lengthSqr());
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, get(i) / length);
 		return ret;
 	}
 	inline void normalize() {
-		T length = (T)sqrt((double)lengthSqr());
+		T length = (T)sqrt((real_t)lengthSqr());
 		for (int i = 0; i < N; ++i) set(i, get(i) / length);
 	}
 
@@ -222,7 +223,7 @@ WARNING_POP;
 
 
 	/// Linear interpolation
-	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, double t) {
+	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, real_t t) {
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, (T)(a.get(i) * (1.0 - t) + b.get(i) * t));
 		return ret;
@@ -280,9 +281,9 @@ WARNING_POP;
 
 
 // Common Vec types
-typedef Vec<double, 4> Vec4;
-typedef Vec<double, 3> Vec3;
-typedef Vec<double, 2> Vec2;
+typedef Vec<real_t, 4> Vec4;
+typedef Vec<real_t, 3> Vec3;
+typedef Vec<real_t, 2> Vec2;
 typedef Vec<int, 4> IVec4;
 typedef Vec<int, 3> IVec3;
 typedef Vec<int, 2> IVec2;

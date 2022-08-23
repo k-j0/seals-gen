@@ -2,6 +2,8 @@
 
 #include "Surface.h"
 
+#include "real.h"
+
 
 /// Represents a self-avoiding surface in 3D space, made up of a certain number of particles
 class Surface3 : public Surface<3, std::unordered_set<int>::const_iterator> {
@@ -43,7 +45,7 @@ protected:
 		return edges[i].end();
 	}
 
-	inline double getRepulsion(int i, int j) override {
+	inline real_t getRepulsion(int i, int j) override {
 		return 1.0; // no repulsion deltas in 3D surfaces
 	}
 

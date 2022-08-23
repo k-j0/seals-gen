@@ -25,11 +25,11 @@ namespace sd {
         assert(particles.size() > 1);
 
         // map particles to stereographic projection (skipping index 0 (= north pole)
-        std::vector<double> points(particles.size() * 2 - 2); // x1 y1 x2 y2 etc
+        std::vector<real_t> points(particles.size() * 2 - 2); // x1 y1 x2 y2 etc
         for (std::size_t i = 1; i < particles.size(); ++i) {
             // From https://en.wikipedia.org/wiki/Stereographic_projection#First_formulation
-            points[i * 2 - 2] = particles[i].spherical.X() / (1.0 - particles[i].spherical.Y());
-            points[i * 2 - 1] = particles[i].spherical.Z() / (1.0 - particles[i].spherical.Y());
+            points[i * 2 - 2] = particles[i].spherical.X() / ((real_t)1 - particles[i].spherical.Y());
+            points[i * 2 - 1] = particles[i].spherical.Z() / ((real_t)1 - particles[i].spherical.Y());
         }
 
         // Run Delaunay triangulation on projected points

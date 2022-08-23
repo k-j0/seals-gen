@@ -1,12 +1,12 @@
 #include "Geometry.h"
 
-GeometryPtr Geometry::Icosahedron(double radius) {
+GeometryPtr Geometry::Icosahedron(real_t radius) {
 
 	GeometryPtr geo = GeometryPtr(new Geometry);
 
 	// see https://github.com/mrdoob/three.js/blob/master/src/geometries/IcosahedronGeometry.js
 
-	double t = (1.0 + sqrt(5.0)) * 0.5;
+	real_t t = (1 + (real_t)sqrt(5.0)) * (real_t)0.5;
 
 	// @todo: hard-coded the first vertex as x = -1 -> x = 0 to place at exact north pole for DT - this makes the geometry no longer an icosahedron
 	geo->vertices.push_back(Vec3( 0.0,    t,  0.0).normalized() * radius);

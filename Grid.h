@@ -21,9 +21,9 @@ protected:
 	std::vector<std::vector<int>> grid;
 
 	/// Given a position in D space, returns the cell index
-	inline int cellFromPosition(Vec<double, D> pos) const {
-		pos.add(0.5);
-		pos.multiply(resolution);
+	inline int cellFromPosition(Vec<real_t, D> pos) const {
+		pos.add((real_t)0.5);
+		pos.multiply((real_t)resolution);
 		Vec<int, D> iPos = pos.floor();
 		if (iPos < 0 || iPos >= resolution) return -1;
 		return iPos.index(resolution);
@@ -47,7 +47,7 @@ protected:
 public:
 
 	/// Constructor, given a cell side length; will create a grid with ceil(1/cellSize)^D cells
-	Grid(float cellSize) {
+	Grid(real_t cellSize) {
 		resolution = int(ceil(1.0 / cellSize));
 		grid.resize(powConstexpr(resolution, D));
 	}
@@ -60,7 +60,7 @@ public:
 	}
 
 	/// Adds a value to the relevant grid cell
-	void add(Vec<double, D> pos, int value) {
+	void add(Vec<real_t, D> pos, int value) {
 		int idx = cellFromPosition(pos);
 		assert(idx >= 0);
 		assert((size_t)idx < grid.size());
@@ -69,14 +69,14 @@ public:
 
 	/// Samples the grid, retaining the lists of neighbour cells
 	/// Returns the cell contents for the 3^D neighbouring cells:
-	void sample(Vec<double, D> pos, std::array<std::vector<int>*, powConstexpr(3, D)>& neighbours) {
+	void sample(Vec<real_t, D> pos, std::array<std::vector<int>*, powConstexpr(3, D)>& neighbours) {
 		assert(pos >= -0.5 && pos < 0.5);
 
 		// identity matrix divided by resolution
-		double d = 1.0 / resolution;
-		Vec<double, D> deltas[D];
+		real_t d = (real_t)1 / resolution;
+		Vec<real_t, D> deltas[D];
 		for (int i = 0; i < D; ++i) {
-			deltas[i] = Vec<double, D>::Zero();
+			deltas[i] = Vec<real_t, D>::Zero();
 			deltas[i].set(i, d);
 		}
 
@@ -86,7 +86,7 @@ public:
 		for (int i = 0; i < powConstexpr(3, D); ++i) {
 
 			// add offsets to position in the various axes
-			Vec<double, D> p = pos;
+			Vec<real_t, D> p = pos;
 			toTernary(i, digits);
 			for (int j = 0; j < D; ++j) {
 				assert(digits[j] < 3);

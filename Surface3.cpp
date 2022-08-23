@@ -187,7 +187,7 @@ void Surface3::addParticleDelaunay() {
 	for (int neighbour : edges[particles.size() - 1]) {
 		p.position.add(particles[neighbour].position);
 	}
-	p.position.multiply(1.0 / edges[particles.size() - 1].size());
+	p.position.multiply((real_t)1 / edges[particles.size() - 1].size());
 #else
 	p.position = p.spherical;
 #endif
@@ -239,7 +239,7 @@ void Surface3::addParticleEdgeDelaunay() {
 	for (int neighbour : edges[particles.size() - 1]) {
 		p.position.add(particles[neighbour].position);
 	}
-	p.position.multiply(1.0 / edges[particles.size() - 1].size());
+	p.position.multiply((real_t)1 / edges[particles.size() - 1].size());
 #else
 	p.position = p.spherical;
 #endif

@@ -4,6 +4,8 @@
 #include <memory>
 #include "Vec.h"
 
+#include "real.h"
+
 
 
 struct Geometry {
@@ -13,7 +15,7 @@ struct Geometry {
 	std::vector<IVec3> indices;
 
 	/// Generates a simple icosahedron geometry
-	static std::shared_ptr<Geometry> Icosahedron(double radius);
+	static std::shared_ptr<Geometry> Icosahedron(real_t radius);
 
 };
 

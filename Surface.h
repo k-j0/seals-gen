@@ -39,13 +39,13 @@ public:
 	/// Simulation parameters
 	struct Params {
 
-		double attractionMagnitude = .025;
-		double repulsionMagnitudeFactor = 2.1; // * attractionMagnitude
-		double damping = .15;
-		double noise = .25;
-		Vec<double, D> repulsionAnisotropy = Vec<double, D>::One();
+		real_t attractionMagnitude = (real_t).025;
+		real_t repulsionMagnitudeFactor = (real_t)2.1; // * attractionMagnitude
+		real_t damping = (real_t).15;
+		real_t noise = (real_t).25;
+		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
 		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
-		double dt = .15;
+		real_t dt = (real_t).15;
 
 	};
 
@@ -76,7 +76,7 @@ protected:
 	virtual neighbour_iterator_t endNeighbours(int i) = 0;
 
 	// Must be implemented in derived classes - returns a repulsion multiplier for two particles i and j
-	virtual double getRepulsion(int i, int j) = 0;
+	virtual real_t getRepulsion(int i, int j) = 0;
 
 public:
 	
@@ -98,13 +98,13 @@ public:
 
 protected:
 
-	inline double rand01() { return double(abs(int(rng())) % 10000) / 10000.0; }
+	inline real_t rand01() { return real_t(abs(int(rng())) % 10000) / (real_t)10000; }
 	
 
 	/// Should be called whenever a new particle is added
 	inline void addParticleToGrid(int particle) {
 		#ifdef USE_GRID
-			particles[particle].position.clamp(-0.5, 0.4999);
+			particles[particle].position.clamp(real_t(-0.5), (real_t)0.4999);
 			grid->add(particles[particle].position, particle);
 		#endif // USE_GRID
 	}
@@ -121,7 +121,7 @@ Surface<D, neighbour_iterator_t>::Surface(Surface<D, neighbour_iterator_t>::Para
 	
 	// create grid
 #ifdef USE_GRID
-	grid = std::make_unique<Grid<D>>(float(params.attractionMagnitude * std::max(1.0, params.repulsionMagnitudeFactor)));
+	grid = std::make_unique<Grid<D>>(real_t(params.attractionMagnitude * std::max((real_t)1.0, params.repulsionMagnitudeFactor)));
 #endif // USE_GRID
 }
 
@@ -154,10 +154,10 @@ void Surface<D, neighbour_iterator_t>::update() {
 			if (i == j || areNeighbours(i, j)) continue; // same particle, or nearest neighbours
 
 			// repel if close enough
-			Vec<double, D> towards = particles[j].position - particles[i].position;
-			double noise = (1 + particles[i].noise * params.noise);
-			double repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getRepulsion(i, j);
-			double d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
+			Vec<real_t, D> towards = particles[j].position - particles[i].position;
+			real_t noise = (1 + particles[i].noise * params.noise);
+			real_t repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getRepulsion(i, j);
+			real_t d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
 				towards.multiply(sqrt(d2) - repulsionLen);
@@ -172,8 +172,8 @@ void Surface<D, neighbour_iterator_t>::update() {
 			int neighbour = *it;
 
 			// attract if far, repel if too close
-			Vec<double, D> towards = particles[neighbour].position - particles[i].position;
-			double d = sqrt(towards.lengthSqr());
+			Vec<real_t, D> towards = particles[neighbour].position - particles[i].position;
+			real_t d = sqrt(towards.lengthSqr());
 			towards.normalize();
 			towards.multiply(d - params.attractionMagnitude);
 			particles[i].acceleration.add(towards);
@@ -247,12 +247,12 @@ void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8
 	bio::writeString(data, getMachineName());
 	bio::writeSimple<int>(data, seed);
 	bio::writeSimple<int>(data, t);
-	bio::writeSimple<double>(data, params.attractionMagnitude);
-	bio::writeSimple<double>(data, params.repulsionMagnitudeFactor);
-	bio::writeSimple<double>(data, params.damping);
-	bio::writeSimple<double>(data, params.noise);
+	bio::writeSimple<real_t>(data, params.attractionMagnitude);
+	bio::writeSimple<real_t>(data, params.repulsionMagnitudeFactor);
+	bio::writeSimple<real_t>(data, params.damping);
+	bio::writeSimple<real_t>(data, params.noise);
 	bio::writeVec(data, params.repulsionAnisotropy);
-	bio::writeSimple<double>(data, params.dt);
+	bio::writeSimple<real_t>(data, params.dt);
 	bio::writeSimple<int>(data, runtimeMs);
 
 	// Core data
