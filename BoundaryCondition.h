@@ -10,7 +10,10 @@ class BoundaryCondition {
 public:
 
 	virtual ~BoundaryCondition() {};
-
+	
+	// Optional update routine, called before each individual sim step
+	virtual void update() = 0;
+	
 	// Returns the acceleration vector pushing the particle away from the boundary, if applicable
 	virtual Vec<real_t, D> force(const Vec<real_t, D>& position) = 0;
 

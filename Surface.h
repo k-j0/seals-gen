@@ -207,6 +207,11 @@ void Surface<D, neighbour_iterator_t>::update() {
 		}
 	#endif
 
+	// Update boundary condition
+	if (params.boundary) {
+		params.boundary->update();
+	}
+
 	++t;
 }
 

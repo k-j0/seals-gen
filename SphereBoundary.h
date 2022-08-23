@@ -9,13 +9,25 @@ class SphereBoundary : public BoundaryCondition<D> {
 	// Radius of the sphere encasing the particles
 	real_t radius;
 
+	real_t maxRadius;
+
 	// How far into the sphere the force applies, in 0..1
 	// Setting to 0 makes the boundary hard (i.e. only particles outside the boundary will be pushed inwards)
 	real_t extent;
 
+	real_t growthRate;
+
 public:
 
-	SphereBoundary(real_t radius = 1.0, real_t extent = .05) : radius(radius), extent(extent) {}
+	SphereBoundary(real_t radius = 1.0, real_t maxRadius = 1.0, real_t extent = .05, real_t growthRate = 1.0) :
+		radius(radius), maxRadius(maxRadius), extent(extent), growthRate(growthRate) {}
+
+	inline void update() override {
+		if (growthRate > 1) {
+			radius *= growthRate;
+			radius = radius > maxRadius ? maxRadius : radius;
+		}
+	}
 
 	inline Vec<real_t, D> force(const Vec<real_t, D>& position) override {
 		const real_t posLen = sqrt(position.lengthSqr());

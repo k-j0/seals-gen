@@ -7,12 +7,21 @@
 class CylinderBoundary : public BoundaryCondition<3> {
 
 	real_t radius;
-
 	real_t extent;
+	real_t growthRate;
+	real_t maxRadius;
 
 public:
 
-	CylinderBoundary(real_t radius = 1.0, real_t extent = .05) : radius(radius), extent(extent) {}
+	CylinderBoundary(real_t radius = 1.0, real_t maxRadius = 1.0, real_t extent = .05, real_t growthRate = 0.0) :
+		radius(radius), maxRadius(maxRadius), extent(extent), growthRate(growthRate) {}
+
+	inline void update() override {
+		if (growthRate > 1) {
+			radius *= growthRate;
+			radius = radius > maxRadius ? maxRadius : radius;
+		}
+	}
 
 	inline Vec3 force(const Vec3& position) override {
 		Vec3 f = Vec3::Zero();

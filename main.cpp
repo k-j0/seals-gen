@@ -26,16 +26,16 @@ int main() {
 	}
 #endif
 
-	int d = 2;
+	constexpr int d = 2;
 	SurfaceBase* surface = nullptr;
-	
+
 	if (d == 3) {
 		Surface3::Params params;
 		#ifdef NO_UPDATE
 			params.attractionMagnitude = 1.0;
 		#endif
 		params.repulsionAnisotropy = Vec3(1.0, 1.0, 1.0);
-		params.boundary = std::shared_ptr<BoundaryCondition<3>>(new CylinderBoundary((real_t).15));
+		params.boundary = std::make_shared<CylinderBoundary>((real_t).15, (real_t).15);
 		surface = new Surface3(params, { Surface3::GrowthStrategy::DELAUNAY }, 0);
 
 	} else if (d == 2) {
@@ -47,7 +47,7 @@ int main() {
 		#ifdef NO_UPDATE
 			params.attractionMagnitude = (real_t)1.0;
 		#endif
-		params.boundary = std::shared_ptr<BoundaryCondition<2>>(new SphereBoundary<2>((real_t)0.5));
+		params.boundary = std::make_shared<SphereBoundary<2>>((real_t)0.075, (real_t)0.5, (real_t).05, real_t(1 + 2e-4));
 		surface = new Surface2(params, { (real_t)1.15 }, 0);
 
 	} else {
