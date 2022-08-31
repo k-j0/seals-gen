@@ -128,12 +128,14 @@ WARNING_POP;
 	inline Vec<T, N> normalized() const {
 		T length = (T)sqrt((real_t)lengthSqr());
 		Vec<T, N> ret;
-		for (int i = 0; i < N; ++i) ret.set(i, get(i) / length);
+		for (int i = 0; i < N; ++i) ret.set(i, length > (T) 0 ? get(i) / length : (T)0);
 		return ret;
 	}
 	inline void normalize() {
 		T length = (T)sqrt((real_t)lengthSqr());
-		for (int i = 0; i < N; ++i) set(i, get(i) / length);
+		if (length > (T)0) {
+			for (int i = 0; i < N; ++i) set(i, get(i) / length);
+		}
 	}
 
 
@@ -276,6 +278,12 @@ WARNING_POP;
 		return false;
 	}
 	
+
+	bool isNaN() const {
+		for (int i = 0; i < N; ++i) if (std::isnan(get(i))) return true;
+		return false;
+	}
+
 
 	// String conversion
 	inline std::string toString() const {
