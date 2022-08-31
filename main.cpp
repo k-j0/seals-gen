@@ -36,7 +36,7 @@ int main() {
 		#endif
 		params.repulsionAnisotropy = Vec3(1.0, 1.0, 1.0);
 		params.boundary = std::make_shared<CylinderBoundary>((real_t).15, (real_t).15);
-		surface = new Surface3(params, { Surface3::GrowthStrategy::DELAUNAY }, 0);
+		surface = new Surface3(params, { true, Surface3::GrowthStrategy::DELAUNAY }, 0);
 
 	} else if (d == 2) {
 
@@ -48,7 +48,7 @@ int main() {
 			params.attractionMagnitude = (real_t)1.0;
 		#endif
 		params.boundary = std::make_shared<SphereBoundary<2>>((real_t)0.075, (real_t)0.5, (real_t).05, real_t(1 + 2e-4));
-		surface = new Surface2(params, { (real_t)1.35 }, 0);
+		surface = new Surface2(params, { true, (real_t)1.35 }, 0);
 
 	} else {
 		printf("Error: invalid dimensionality! Must select 2 or 3.");

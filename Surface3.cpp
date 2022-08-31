@@ -23,6 +23,10 @@ Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int s
 		particles[i].spherical = particles[i].position.normalized();
 	}
 
+	if (specificParams.attachFirstParticle && params.boundary) {
+		particles.front().attached = true;
+	}
+
 	// init edges amongst original geo
 	edges = std::vector<std::unordered_set<int>>(particles.size());
 #define CONNECT(a, b) edges[a].insert(b); edges[b].insert(a);

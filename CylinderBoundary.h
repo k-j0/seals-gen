@@ -23,6 +23,12 @@ public:
 		}
 	}
 
+	void updateAttachedParticle(Particle<3>* particle, real_t maximumAllowedDisplacement) override {
+		Vec<real_t, 2> target = particle->position.XY().normalized();
+		target.multiply(radius);
+		particle->position.moveTowards(Vec3(target.X(), target.Y(), particle->position.Z()), maximumAllowedDisplacement);
+	}
+
 	inline Vec3 force(const Vec3& position) override {
 		Vec3 f = Vec3::Zero();
 		Vec2 xy = position.XY();

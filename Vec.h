@@ -239,6 +239,17 @@ WARNING_POP;
 	}
 
 
+	/// Assuming two Vecs representing positions in space, moves this vec towards the position of the other one, with a clamp on how far the vec may move at once
+	inline void moveTowards(const Vec<T, N>& target, const real_t& max) {
+		Vec<T, N> towards = target - (*this);
+		if (towards.lengthSqr() > max * max) {
+			towards.normalize();
+			towards.multiply(max);
+		}
+		this->operator+=(towards);
+	}
+
+
 	/// Comparisons
 	inline bool operator< (const T& v) const {
 		for (int i = 0; i < N; ++i) if (get(i) < v) return true;

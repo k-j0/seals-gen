@@ -17,6 +17,7 @@ public:
 	};
 
 	struct SpecificParams {
+		bool attachFirstParticle = false; // if true, attaches the first particle to the boundary wall (@todo: would be better to attach a group of particles e.g. in a row)
 		GrowthStrategy strategy = GrowthStrategy::DELAUNAY;
 	};
 

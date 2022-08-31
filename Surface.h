@@ -135,6 +135,13 @@ void Surface<D, neighbour_iterator_t>::update() {
 	#pragma omp parallel for
 	for (int i = 0; i < numParticles; ++i) {
 
+		// particles attached to the wall should move towards their slot on the wall
+		if (particles[i].attached) {
+			assert(params.boundary);
+			params.boundary->updateAttachedParticle(&particles[i], params.attractionMagnitude * std::max((real_t)1.0, params.repulsionMagnitudeFactor));
+			continue;
+		}
+
 		// dampen acceleration
 		particles[i].acceleration.multiply(params.damping * params.damping);
 
@@ -183,6 +190,9 @@ void Surface<D, neighbour_iterator_t>::update() {
 	// update positions for all particles
 	#pragma omp parallel for
 	for (int i = 0; i < numParticles; ++i) {
+
+		// Ignore particles fixed in place
+		if (particles[i].attached) continue;
 
 		// dampen velocity
 		particles[i].velocity.multiply(params.damping);

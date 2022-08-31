@@ -29,6 +29,12 @@ public:
 		}
 	}
 
+	void updateAttachedParticle(Particle<D>* particle, real_t maximumAllowedDisplacement) override {
+		Vec<real_t, D> target = particle->position.normalized();
+		target.multiply(radius);
+		particle->position.moveTowards(target, maximumAllowedDisplacement);
+	}
+
 	inline Vec<real_t, D> force(const Vec<real_t, D>& position) override {
 		const real_t posLen = sqrt(position.lengthSqr());
 		if (posLen > radius * (1.0 - extent)) {

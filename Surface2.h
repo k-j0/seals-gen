@@ -11,6 +11,7 @@ class Surface2 : public Surface<2, std::array<int, 2>::const_iterator> {
 public:
 
 	struct SpecificParams {
+		bool attachFirstParticle = false; // if true, attaches the first particle to the boundary wall
 		real_t channelRepulsionMultiplier = 1.0; // if != 1, repulsion across fingers will be different from repulsion across channels
 	};
 

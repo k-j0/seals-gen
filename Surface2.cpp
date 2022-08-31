@@ -13,6 +13,10 @@ Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Sur
 	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(2 * M_PI / 3) * radius, std::sin(2 * M_PI / 3) * radius)));
 	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(4 * M_PI / 3) * radius, std::sin(4 * M_PI / 3) * radius)));
 	
+	if (specificParams.attachFirstParticle && params.boundary) {
+		particles.front().attached = true;
+	}
+
 	// init edges
 	neighbourIndices.push_back({ 2, 1 });
 	neighbourIndices.push_back({ 0, 2 });
