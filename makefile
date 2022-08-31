@@ -1,7 +1,7 @@
 
 OUT := seals
 CC := g++
-CFLAGS := -fopenmp -O3 -Wall -std=c++14 -m64
+CFLAGS := -fopenmp -O3 -Wall -std=c++14 -m64 -DNDEBUG
 
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(SOURCES:.cpp=.o)
