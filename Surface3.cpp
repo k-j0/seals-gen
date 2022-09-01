@@ -96,13 +96,12 @@ void Surface3::specificJson(std::string& json) {
 void Surface3::specificBinary(std::vector<uint8_t>& data) {
 
 	// Particle positions
-	bio::writeSimple<int>(data, (int)particles.size());
 	for (size_t i = 0; i < particles.size(); ++i) {
 		bio::writeVec(data, particles[i].position);
 	}
 
 	// Triangle indices
-	bio::writeSimple<int>(data, (int)triangles.size());
+	bio::writeSimple<int32_t>(data, (int32_t)triangles.size());
 	for (size_t i = 0; i < triangles.size(); ++i) {
 		bio::writeVec(data, triangles[i]);
 	}

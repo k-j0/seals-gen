@@ -63,4 +63,11 @@ void Surface2::specificJson(std::string& json) {
 	json += "\t]";
 }
 
-void Surface2::specificBinary(std::vector<uint8_t>& data) {}
+void Surface2::specificBinary(std::vector<uint8_t>& data) {
+
+	// Particle positions
+	for (size_t i = 0; i < particles.size(); ++i) {
+		bio::writeVec(data, particles[i].position);
+	}
+
+}

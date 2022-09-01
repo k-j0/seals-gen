@@ -258,19 +258,20 @@ void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8
 
 	// Metadata
 	bio::writeSimple<uint8_t>(data, D);
-	bio::writeSimple<long long>(data, time(nullptr));
+	bio::writeSimple<int64_t>(data, time(nullptr));
 	bio::writeString(data, getMachineName());
-	bio::writeSimple<int>(data, seed);
-	bio::writeSimple<int>(data, t);
+	bio::writeSimple<int32_t>(data, seed);
+	bio::writeSimple<int32_t>(data, t);
 	bio::writeSimple<real_t>(data, params.attractionMagnitude);
 	bio::writeSimple<real_t>(data, params.repulsionMagnitudeFactor);
 	bio::writeSimple<real_t>(data, params.damping);
 	bio::writeSimple<real_t>(data, params.noise);
 	bio::writeVec(data, params.repulsionAnisotropy);
 	bio::writeSimple<real_t>(data, params.dt);
-	bio::writeSimple<int>(data, runtimeMs);
+	bio::writeSimple<int32_t>(data, runtimeMs);
 
 	// Core data
+	bio::writeSimple<int32_t>(data, (int32_t)particles.size());
 	specificBinary(data);
 
 	// EOS
