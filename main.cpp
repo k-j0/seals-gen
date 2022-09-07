@@ -10,6 +10,7 @@
 #endif
 #include "warnings.h"
 #include "Arguments.h"
+#include "Runtime.h"
 
 
 WARNING_DISABLE_OMP_PRAGMAS;
@@ -68,58 +69,56 @@ int main(int argc, char** argv) {
 	std::string snapshotsJson = writeJson ? "[\n" : "";
 	std::vector<uint8_t> snapshotsBinary;
 	bool first = true;
-	std::chrono::system_clock clock;
-	auto start = clock.now();
 
 	// grow progressively
 	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~0.2s (Delaunay: ~2.6s))
 	// 10k iterations, omp, release build: ~60s
-	for (int t = 0; t < iterations; ++t) {
-
-		// update surface
-		if (t % 5 == 0) {
-			surface->addParticle();
-		}
-#ifndef NO_UPDATE
-		surface->update();
-
-		// recurrent outputs (console + snapshots)
-		if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
-			printf("%d %%...\r", t * 100 / iterations);
-			fflush(stdout);
-			int millis = int(std::chrono::duration_cast<std::chrono::milliseconds>(clock.now() - start).count());
-			surface->toBinary(millis, snapshotsBinary);
-			File::Write("results/surface.bin", snapshotsBinary);
-			if (writeJson) {
-				if (!first) {
-					snapshotsJson += ",\n";
-				}
-				snapshotsJson += surface->toJson(millis);
-				first = false;
-				File::Write("results/surface.json", snapshotsJson + "\n]");
+	long long totalRuntimeMs;
+	{
+		Runtime runtime(totalRuntimeMs);
+		for (int t = 0; t < iterations; ++t) {
+			
+			// update surface
+			if (t % 5 == 0) {
+				surface->addParticle();
 			}
+			#ifndef NO_UPDATE
+				surface->update();
+				
+				// recurrent outputs (console + snapshots)
+				if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
+					printf("%d %%...\r", t * 100 / iterations);
+					fflush(stdout);
+					auto millis = runtime.getMs();
+					surface->toBinary(millis, snapshotsBinary);
+					File::Write("results/surface.bin", snapshotsBinary);
+					if (writeJson) {
+						if (!first) {
+							snapshotsJson += ",\n";
+						}
+						snapshotsJson += surface->toJson(millis);
+						first = false;
+						File::Write("results/surface.json", snapshotsJson + "\n]");
+					}
+				}
+			#endif
 		}
-#endif
+		printf("100 %%  \n\n");
+		
+		#ifndef NO_UPDATE
+			// settle (iterations without new particles)
+			for (int t = 0; t < 50; ++t) {
+				surface->update();
+			}
+		#endif
 	}
-	printf("100 %%  \n");
-
-#ifndef NO_UPDATE
-	// settle (iterations without new particles)
-	for (int t = 0; t < 50; ++t) {
-		surface->update();
-	}
-#endif
-
-	auto end = clock.now();
-	int totalRuntime = int(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
-	printf("Total runtime: %d ms.\n", totalRuntime);
-
+	
 	// Write the final snapshot
-	surface->toBinary(totalRuntime, snapshotsBinary);
+	surface->toBinary(totalRuntimeMs, snapshotsBinary);
 	File::Write("results/surface.bin", snapshotsBinary);
 	printf("Wrote results to results/surface.bin");
 	if (writeJson) {
-		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntime);
+		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntimeMs);
 		File::Write("results/surface.json", snapshotsJson + "\n]");
 		printf(" and results/surface.json");
 	}
