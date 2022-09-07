@@ -24,13 +24,13 @@ public:
         auto ms = getMs();
         outMs = ms;
         std::printf("Runtime: ");
-        if (ms > 1000) {
+        if (ms >= 1000) {
             auto s = ms / 1000;
             ms -= s * 1000;
-            if (s > 60) {
+            if (s >= 60) {
                 auto min = s / 60;
                 s -= min * 60;
-                if (min > 60) {
+                if (min >= 60) {
                     auto hr = min / 60;
                     min -= hr * 60;
                     std::printf("%02lldhr ", hr);
