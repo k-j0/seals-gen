@@ -71,8 +71,6 @@ int main(int argc, char** argv) {
 	bool first = true;
 
 	// grow progressively
-	// 10k iterations, serial, release build: ~190-240s (~3-4 mins) (of which tessellation ~0.2s (Delaunay: ~2.6s))
-	// 10k iterations, omp, release build: ~60s
 	long long totalRuntimeMs;
 	{
 		Runtime runtime(totalRuntimeMs);
