@@ -46,7 +46,7 @@ protected:
 		return edges[i].end();
 	}
 
-	inline real_t getRepulsion(int i, int j) override {
+	inline real_t getRepulsion([[maybe_unused]] int i, [[maybe_unused]] int j) override {
 		return 1.0; // no repulsion deltas in 3D surfaces
 	}
 
