@@ -9,14 +9,25 @@
 	#include <omp.h>
 #endif
 #include "warnings.h"
+#include "Arguments.h"
 
 
 WARNING_DISABLE_OMP_PRAGMAS;
 
 
-int main() {
+int main(int argc, char** argv) {
 	
 	printf("Starting...\n\n");
+	
+	// Read arguments
+	int d, iterations;
+	bool writeJson;
+	{
+		Arguments args(argc, argv);
+		d = args.read<int>("d", 2);
+		iterations = args.read<int>("iter", 600);
+		writeJson = args.read<bool>("json", false);
+	}
 
 #ifdef _OPENMP
 	#pragma omp parallel
@@ -25,8 +36,7 @@ int main() {
 		printf("OpenMP enabled, %d threads.\n\n", omp_get_num_threads());
 	}
 #endif
-
-	constexpr int d = 2;
+	
 	SurfaceBase* surface = nullptr;
 
 	if (d == 3) {
@@ -54,9 +64,8 @@ int main() {
 		printf("Error: invalid dimensionality! Must select 2 or 3.");
 		exit(1);
 	}
-
-	const int iterations = 600;
-	std::string snapshotsJson = "[\n";
+	
+	std::string snapshotsJson = writeJson ? "[\n" : "";
 	std::vector<uint8_t> snapshotsBinary;
 	bool first = true;
 	std::chrono::system_clock clock;
@@ -78,15 +87,17 @@ int main() {
 		if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
 			printf("%d %%...\r", t * 100 / iterations);
 			fflush(stdout);
-			if (!first) {
-				snapshotsJson += ",\n";
-			}
 			int millis = int(std::chrono::duration_cast<std::chrono::milliseconds>(clock.now() - start).count());
-			snapshotsJson += surface->toJson(millis);
 			surface->toBinary(millis, snapshotsBinary);
-			first = false;
-			File::Write("results/surface.json", snapshotsJson + "\n]");
 			File::Write("results/surface.bin", snapshotsBinary);
+			if (writeJson) {
+				if (!first) {
+					snapshotsJson += ",\n";
+				}
+				snapshotsJson += surface->toJson(millis);
+				first = false;
+				File::Write("results/surface.json", snapshotsJson + "\n]");
+			}
 		}
 #endif
 	}
@@ -104,11 +115,15 @@ int main() {
 	printf("Total runtime: %d ms.\n", totalRuntime);
 
 	// Write the final snapshot
-	snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntime);
 	surface->toBinary(totalRuntime, snapshotsBinary);
-	File::Write("results/surface.json", snapshotsJson + "\n]");
 	File::Write("results/surface.bin", snapshotsBinary);
-	printf("Wrote results to results/surface.json and results/surface.bin.\n");
+	printf("Wrote results to results/surface.bin");
+	if (writeJson) {
+		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntime);
+		File::Write("results/surface.json", snapshotsJson + "\n]");
+		printf(" and results/surface.json");
+	}
+	printf(".\n");
 
 	delete surface;
 
