@@ -18,8 +18,6 @@ WARNING_DISABLE_OMP_PRAGMAS;
 
 int main(int argc, char** argv) {
 	
-	printf("Starting...\n\n");
-	
 	// Read arguments
 	int d, iterations;
 	bool writeJson;
@@ -29,6 +27,8 @@ int main(int argc, char** argv) {
 		iterations = args.read<int>("iter", 600);
 		writeJson = args.read<bool>("json", false);
 	}
+	
+	printf("Starting...\n\n");
 
 #ifdef _OPENMP
 	#pragma omp parallel

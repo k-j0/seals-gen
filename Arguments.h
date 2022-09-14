@@ -5,6 +5,7 @@
 
 class Arguments {
     
+    bool help = false;
     std::unordered_map<std::string, std::string> args;
     
     template<typename T>
@@ -15,6 +16,11 @@ class Arguments {
         exit(1);
     }
     
+    template<typename T>
+    std::string typeName () const {
+        return "unknown type";
+    }
+    
 public:
     
     Arguments(int argc, char** argv) {
@@ -23,6 +29,13 @@ public:
         for (int i = 1; i < argc; ++i) {
             std::string arg = std::string(argv[i]);
             if (arg.length() > 0) {
+                
+                // passing 'help' as an argument turns on help mode, printing each key/type and exiting early
+                if (arg.compare("help") == 0 && !hasPrevKey) {
+                    help = true;
+                    printf("Usage:\n");
+                    continue;
+                }
                 
                 // if the argument starts with a dash, it's a new key; if not, it's the value to set for the last key
                 if (arg[0] == '-') {
@@ -48,6 +61,9 @@ public:
             std::printf("Unused arguments, are you sure you meant to include these?\n%s", toString().c_str());
             exit(1);
         }
+        if (help) {
+            exit(0);
+        }
     }
     
     template<typename T>
@@ -58,15 +74,20 @@ public:
             const std::string& str = found->second;
             val = fromString<T>(str);
             args.erase(found);
-        } else if (required) {
+        } else if (required && !help) {
             std::printf("No argument passed for required parameter -%s!\n", key.c_str());
             exit(1);
+        }
+        if (help) {
+            printf("-%s: %s", key.c_str(), typeName<T>().c_str());
+            if (required) printf(" (required)");
+            printf("\n");
         }
         return val;
     }
     
     template<typename T>
-    T read(const std::string& key) const {
+    T read(const std::string& key) {
         return read<T>(key, T{}, true);
     }
     
@@ -114,3 +135,11 @@ bool Arguments::fromString<bool>(const std::string& val) const {
 FROM_STRING_STD_STO_T(int, stoi);
 FROM_STRING_STD_STO_T(float, stof);
 #undef FROM_STRING_STD_STO_T
+
+
+#define TYPE_NAME(T) \
+    template<> std::string Arguments::typeName<T>() const { return #T; }
+TYPE_NAME(std::string);
+TYPE_NAME(int);
+TYPE_NAME(float);
+TYPE_NAME(bool);
