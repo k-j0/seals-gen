@@ -21,11 +21,13 @@ int main(int argc, char** argv) {
 	// Read arguments
 	int d, iterations;
 	bool writeJson;
+	std::string outFile;
 	{
 		Arguments args(argc, argv);
 		d = args.read<int>("d", 2);
 		iterations = args.read<int>("iter", 600);
 		writeJson = args.read<bool>("json", false);
+		outFile = args.read<std::string>("out", "results/surface.bin");
 	}
 	
 	printf("Starting...\n\n");
@@ -89,7 +91,7 @@ int main(int argc, char** argv) {
 					fflush(stdout);
 					auto millis = runtime.getMs();
 					surface->toBinary(millis, snapshotsBinary);
-					File::Write("results/surface.bin", snapshotsBinary);
+					File::Write(outFile, snapshotsBinary);
 					if (writeJson) {
 						if (!first) {
 							snapshotsJson += ",\n";
@@ -113,8 +115,8 @@ int main(int argc, char** argv) {
 	
 	// Write the final snapshot
 	surface->toBinary(totalRuntimeMs, snapshotsBinary);
-	File::Write("results/surface.bin", snapshotsBinary);
-	printf("Wrote results to results/surface.bin");
+	File::Write(outFile, snapshotsBinary);
+	printf("Wrote results to %s", outFile.c_str());
 	if (writeJson) {
 		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntimeMs);
 		File::Write("results/surface.json", snapshotsJson + "\n]");
