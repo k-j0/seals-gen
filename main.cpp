@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
 			params.dt = 0.5;
 			Surface2::SpecificParams specificParams;
 			specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
+			specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
 			surface = new Surface2(params, specificParams);
 		} else {
 			printf("Error: invalid dimensionality %d! Must select 2 or 3.", d);
