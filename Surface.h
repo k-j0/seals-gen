@@ -276,8 +276,11 @@ template<int D, typename neighbour_iterator_t>
 void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
 
 	// Header, in front of any surface object in the binary file
-	data.push_back('S'); data.push_back('R'); data.push_back('F');
-
+	data.push_back('S'); data.push_back('E'); data.push_back('L');
+	
+	// File version
+	bio::writeSimple<uint8_t>(data, 1);
+	
 	// Metadata
 	bio::writeSimple<uint8_t>(data, D);
 	bio::writeSimple<int64_t>(data, time(nullptr));
@@ -291,6 +294,7 @@ void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8
 	bio::writeVec(data, params.repulsionAnisotropy);
 	bio::writeSimple<real_t>(data, params.dt);
 	bio::writeSimple<int32_t>(data, runtimeMs);
+	bio::writeSimple<real_t>(data, getVolume());
 
 	// Core data
 	bio::writeSimple<int32_t>(data, (int32_t)particles.size());
