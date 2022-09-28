@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <iostream>
 
 class Arguments {
     
@@ -81,6 +82,7 @@ public:
         if (help) {
             printf("-%s: %s", key.c_str(), typeName<T>().c_str());
             if (required) printf(" (required)");
+            else std::cout << " (default: " << defaultValue << ")";
             printf("\n");
         }
         return val;
