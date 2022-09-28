@@ -77,6 +77,9 @@ protected:
 
 	// Must be implemented in derived classes - returns a repulsion multiplier for two particles i and j
 	virtual real_t getRepulsion(int i, int j) = 0;
+	
+	// Must be implemented in derived classes; returns the full volume/area of the surface
+	virtual real_t getVolume() = 0;
 
 public:
 	
@@ -242,7 +245,8 @@ std::string Surface<D, neighbour_iterator_t>::toJson(int runtimeMs) {
 		"\t'repulsionAnisotropy': " + params.repulsionAnisotropy.toString() + ",\n"
 		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
 		"\t'dt': " + std::to_string(params.dt) + ",\n"
-		"\t'runtime': " + std::to_string(runtimeMs) + ",\n";
+		"\t'runtime': " + std::to_string(runtimeMs) + ",\n"
+		"\t'volume': " + std::to_string(getVolume()) + ",\n";
 
 	specificJson(json);
 

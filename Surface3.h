@@ -47,7 +47,11 @@ protected:
 	}
 
 	inline real_t getRepulsion([[maybe_unused]] int i, [[maybe_unused]] int j) override {
-		return 1.0; // no repulsion deltas in 3D surfaces
+		return 1.0; // no repulsion deltas in 3D surfaces yet @todo
+	}
+	
+	inline real_t getVolume() override {
+		return 1.0; // @todo
 	}
 
 public:

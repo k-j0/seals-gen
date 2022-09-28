@@ -49,6 +49,17 @@ protected:
 			return 1.0;
 		}
 	}
+	
+	inline real_t getVolume() override {
+		// compute area enclosed within the polygon
+		real_t area = 0;
+		#pragma omp parallel for reduction(+: area)
+		for (std::size_t i = 0; i < particles.size(); ++i) {
+			const std::array<int, 2>& neighbours = neighbourIndices[i];
+			area += particles[i].position.X() * (particles[neighbours[1]].position.Y() - particles[neighbours[0]].position.Y());
+		}
+		return area * 0.5;
+	}
 
 public:
 
