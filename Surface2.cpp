@@ -12,7 +12,8 @@ Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Sur
 	real_t radius = real_t(params.attractionMagnitude) / (real_t(2.0) * std::sin(M_PI / n));
 	for (int i = 0; i < n; ++i) {
 		real_t angle = M_PI * 2 * real_t(i) / n;
-		particles.push_back(Particle<2>::FromPosition({ radius * std::cos(angle), radius * std::sin(angle) }));
+		real_t localRadius = radius * (1 + rand01() * specificParams.initialNoise);
+		particles.push_back(Particle<2>::FromPosition({ localRadius * std::cos(angle), localRadius * std::sin(angle) }));
 		neighbourIndices.push_back({ (i-1+n) % n, (i+1) % n });
 		addParticleToGrid(i);
 	}

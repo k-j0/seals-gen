@@ -12,6 +12,7 @@ public:
 
 	struct SpecificParams {
 		int initialParticleCount = 3;
+		real_t initialNoise = 0;
 		bool attachFirstParticle = false; // if true, attaches the first particle to the boundary wall
 		real_t surfaceTensionMultiplier = 1.0; // if > 1, repulsion for next-neighbours will be higher than higher-order neighbours
 	};

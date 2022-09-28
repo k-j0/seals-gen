@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
 	// Read arguments
 	SurfaceBase* surface = nullptr;
 	int iterations;
+	int particleGrowth;
 	bool writeJson;
 	std::string outFile;
 	{
@@ -77,6 +78,7 @@ int main(int argc, char** argv) {
 			params.dt = 0.5;
 			Surface2::SpecificParams specificParams;
 			specificParams.initialParticleCount = args.read<int>("particles", 3);
+			specificParams.initialNoise = args.read<real_t>("initial-noise", 0);
 			specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
 			specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
 			surface = new Surface2(params, specificParams);
@@ -85,6 +87,7 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 		iterations = args.read<int>("iter", 600);
+		particleGrowth = args.read<int>("growth", 5);
 		writeJson = args.read<bool>("json", false);
 		outFile = args.read<std::string>("out", "results/surface.bin");
 	}
@@ -110,7 +113,7 @@ int main(int argc, char** argv) {
 		for (int t = 0; t < iterations; ++t) {
 			
 			// update surface
-			if (t % 5 == 0) {
+			if (particleGrowth > 0 && t % particleGrowth == 0) {
 				surface->addParticle();
 			}
 			#ifndef NO_UPDATE
