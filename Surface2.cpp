@@ -7,23 +7,18 @@
 
 Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Surface<2, std::array<int, 2>::const_iterator>(params, seed), specificParams(specificParams) {
 	
-	// build initial equilateral triangle with side length = attraction magnitude
-	real_t radius = params.attractionMagnitude;
-	particles.push_back(Particle<2>::FromPosition(Vec2(radius, 0.0)));
-	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(2 * M_PI / 3) * radius, std::sin(2 * M_PI / 3) * radius)));
-	particles.push_back(Particle<2>::FromPosition(Vec2(std::cos(4 * M_PI / 3) * radius, std::sin(4 * M_PI / 3) * radius)));
+	// build initial regular n-gon with side length = attraction magnitude
+	int n = specificParams.initialParticleCount;
+	real_t radius = real_t(params.attractionMagnitude) / (real_t(2.0) * std::sin(M_PI / n));
+	for (int i = 0; i < n; ++i) {
+		real_t angle = M_PI * 2 * real_t(i) / n;
+		particles.push_back(Particle<2>::FromPosition({ radius * std::cos(angle), radius * std::sin(angle) }));
+		neighbourIndices.push_back({ (i-1+n) % n, (i+1) % n });
+		addParticleToGrid(i);
+	}
 	
 	if (specificParams.attachFirstParticle && params.boundary) {
 		particles.front().attached = true;
-	}
-
-	// init edges
-	neighbourIndices.push_back({ 2, 1 });
-	neighbourIndices.push_back({ 0, 2 });
-	neighbourIndices.push_back({ 1, 0 });
-
-	for (std::size_t i = 0; i < particles.size(); ++i) {
-		addParticleToGrid((int)i);
 	}
 }
 

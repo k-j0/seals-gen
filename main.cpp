@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
 			);
 			params.dt = 0.5;
 			Surface2::SpecificParams specificParams;
+			specificParams.initialParticleCount = args.read<int>("particles", 3);
 			specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
 			specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
 			surface = new Surface2(params, specificParams);
