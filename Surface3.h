@@ -33,7 +33,11 @@ private:
 	std::vector<std::unordered_set<int>> edges;
 
 protected:
-
+	
+	inline Vec3 getNormal([[maybe_unused]] int i) override {
+		return Vec3::Zero(); // @todo
+	}
+	
 	inline bool areNeighbours(int i, int j) override {
 		return edges[i].find(j) != edges[i].end();
 	}

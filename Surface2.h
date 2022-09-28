@@ -25,7 +25,16 @@ private:
 	std::vector<std::array<int, 2>> neighbourIndices; // for each particle, neighbourIndices[i] provides the next ([1]) and previous ([0]) neighbour
 
 protected:
-
+	
+	inline Vec2 getNormal(int i) override {
+		Vec2 toCurr = particles[i].position - particles[neighbourIndices[i][0]].position;
+		Vec2 toNext = particles[neighbourIndices[i][1]].position - particles[i].position;
+		Vec2 normal = { toCurr.Y(), -toCurr.X() }; // normal of vector from previous to current
+		normal += { toNext.Y(), -toNext.X() }; // + normal of vector from current to next
+		normal.normalize(); // normalize (i.e. average then normalize)
+		return normal;
+	}
+	
 	inline bool areNeighbours(int i, int j) override {
 		return neighbourIndices[i][0] == j || neighbourIndices[j][0] == i;
 	}

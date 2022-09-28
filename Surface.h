@@ -42,6 +42,7 @@ public:
 		real_t attractionMagnitude = (real_t).025;
 		real_t repulsionMagnitudeFactor = (real_t)2.1; // * attractionMagnitude
 		real_t damping = (real_t).15;
+		real_t pressure = (real_t)0;
 		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
 		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
@@ -69,6 +70,11 @@ protected:
 	#ifdef USE_GRID
 		std::unique_ptr<Grid<D>> grid;
 	#endif // USE_GRID
+	
+	real_t initialVolume = -1;
+	
+	// Must be implemented - returns the normal vector (pointing outwards) for a given particle
+	virtual Vec<real_t, D> getNormal(int i) = 0;
 
 	// Neighbour interfaces - must be implemented in derived classes
 	virtual bool areNeighbours(int i, int j) = 0;
@@ -133,6 +139,11 @@ template<int D, typename neighbour_iterator_t>
 void Surface<D, neighbour_iterator_t>::update() {
 
 	int numParticles = (int)particles.size();
+	
+	// compute volume delta since beginning and resulting pressure force magnitude to apply to each particle
+	real_t volume = params.pressure == 0 ? 1 : std::max(real_t(0), getVolume()); // no need to compute volume without a pressure force
+	if (initialVolume < 0) initialVolume = volume;
+	real_t pressureAmount = initialVolume == 0 ? 0 : params.pressure * (initialVolume - volume) / initialVolume; // increased volume: negative pressure; decreased volume: positive pressure
 
 	// update acceleration values for all particles first without writing to position
 	#pragma omp parallel for
@@ -152,7 +163,14 @@ void Surface<D, neighbour_iterator_t>::update() {
 		if (params.boundary) {
 			particles[i].acceleration.add(params.boundary->force(particles[i].position));
 		}
-
+		
+		// pressure force
+		if (params.pressure > 0) {
+			Vec<real_t, D> normal = getNormal(i);
+			normal.multiply(pressureAmount);
+			particles[i].acceleration.add(normal);
+		}
+		
 		// iterate over non-neighbour particles
 	#ifdef USE_GRID
 		std::array<std::vector<int>*, powConstexpr(3, D)> cells;

@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
 			params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
 			params.damping = args.read<real_t>("damping", .5);
 			params.noise = args.read<real_t>("noise", .25);
+			params.pressure = args.read<real_t>("pressure", 0);
 			params.boundary = std::make_shared<SphereBoundary<2>>(
 				args.read<real_t>("boundary-radius", .5),
 				args.read<real_t>("boundary-max-radius", .5),
