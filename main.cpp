@@ -84,8 +84,8 @@ int main(int argc, char** argv) {
 			specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
 			surface = new Surface2(params, specificParams);
 		} else {
-			printf("Error: invalid dimensionality %d! Must select 2 or 3.", d);
-			exit(1);
+			std::printf("Error: invalid dimensionality %d! Must select 2 or 3.", d);
+			std::exit(1);
 		}
 		iterations = args.read<int>("iter", 600);
 		particleGrowth = args.read<int>("growth", 5);
@@ -93,18 +93,18 @@ int main(int argc, char** argv) {
 		outFile = args.read<std::string>("out", "results/surface.bin");
 	}
 	
-	printf("Starting...\n\n");
+	std::printf("Starting...\n\n");
 
 #ifdef _OPENMP
 	#pragma omp parallel
 	#pragma omp master
 	{
-		printf("OpenMP enabled, %d threads.\n\n", omp_get_num_threads());
+		std::printf("OpenMP enabled, %d threads.\n\n", omp_get_num_threads());
 	}
 #endif
 	
 	std::string snapshotsJson = writeJson ? "[\n" : "";
-	std::vector<uint8_t> snapshotsBinary;
+	std::vector<std::uint8_t> snapshotsBinary;
 	bool first = true;
 
 	// grow progressively
@@ -122,8 +122,8 @@ int main(int argc, char** argv) {
 				
 				// recurrent outputs (console + snapshots)
 				if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
-					printf("%d %%...\r", t * 100 / iterations);
-					fflush(stdout);
+					std::printf("%d %%...\r", t * 100 / iterations);
+					std::fflush(stdout);
 					auto millis = runtime.getMs();
 					surface->toBinary(millis, snapshotsBinary);
 					File::Write(outFile, snapshotsBinary);
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
 				}
 			#endif
 		}
-		printf("100 %%  \n\n");
+		std::printf("100 %%  \n\n");
 		
 		#ifndef NO_UPDATE
 			// settle (iterations without new particles)
@@ -151,13 +151,13 @@ int main(int argc, char** argv) {
 	// Write the final snapshot
 	surface->toBinary(totalRuntimeMs, snapshotsBinary);
 	File::Write(outFile, snapshotsBinary);
-	printf("Wrote results to %s", outFile.c_str());
+	std::printf("Wrote results to %s", outFile.c_str());
 	if (writeJson) {
 		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntimeMs);
 		File::Write("results/surface.json", snapshotsJson + "\n]");
-		printf(" and results/surface.json");
+		std::printf(" and results/surface.json");
 	}
-	printf(".\n");
+	std::printf(".\n");
 
 	delete surface;
 

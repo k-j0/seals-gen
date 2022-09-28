@@ -8,7 +8,7 @@ void File::Write(std::string filename, std::string contents) {
 
 }
 
-void File::Write(std::string filename, std::vector<uint8_t> contents) {
+void File::Write(std::string filename, std::vector<std::uint8_t> contents) {
 	
 	std::ofstream file(filename, std::ios::binary);
 	file.write(reinterpret_cast<const char*>(&contents[0]), contents.size());

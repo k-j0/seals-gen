@@ -36,7 +36,7 @@ public:
 	}
 
 	inline Vec<real_t, D> force(const Vec<real_t, D>& position) override {
-		const real_t posLen = sqrt(position.lengthSqr());
+		const real_t posLen = std::sqrt(position.lengthSqr());
 		if (posLen > radius * (1.0 - extent)) {
 			real_t d = ((real_t)1 - extent) - posLen / radius;
 			return position * -d * d * .5;

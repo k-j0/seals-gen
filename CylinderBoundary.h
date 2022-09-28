@@ -32,7 +32,7 @@ public:
 	inline Vec3 force(const Vec3& position) override {
 		Vec3 f = Vec3::Zero();
 		Vec2 xy = position.XY();
-		const real_t posLen = sqrt(xy.lengthSqr());
+		const real_t posLen = std::sqrt(xy.lengthSqr());
 		if (posLen > radius * (1.0 - extent)) {
 			real_t d = ((real_t)1 - extent) - posLen / radius;
 			f.setXY(xy * -d * d * (real_t).5);

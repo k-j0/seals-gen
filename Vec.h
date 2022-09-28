@@ -126,13 +126,13 @@ WARNING_POP;
 
 	/// Normalized vector
 	inline Vec<T, N> normalized() const {
-		T length = (T)sqrt((real_t)lengthSqr());
+		T length = (T)std::sqrt((real_t)lengthSqr());
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, length > (T) 0 ? get(i) / length : (T)0);
 		return ret;
 	}
 	inline void normalize() {
-		T length = (T)sqrt((real_t)lengthSqr());
+		T length = (T)std::sqrt((real_t)lengthSqr());
 		if (length > (T)0) {
 			for (int i = 0; i < N; ++i) set(i, get(i) / length);
 		}
@@ -225,7 +225,7 @@ WARNING_POP;
 
 
 	/// Linear interpolation
-	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, real_t t) {
+	inline static Vec<T, N> Lerp(const Vec<T, N>& a, const Vec<T, N>& b, T t) {
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, (T)(a.get(i) * (1.0 - t) + b.get(i) * t));
 		return ret;
@@ -242,7 +242,7 @@ WARNING_POP;
 
 
 	/// Assuming two Vecs representing positions in space, moves this vec towards the position of the other one, with a clamp on how far the vec may move at once
-	inline void moveTowards(const Vec<T, N>& target, const real_t& max) {
+	inline void moveTowards(const Vec<T, N>& target, const T& max) {
 		Vec<T, N> towards = target - (*this);
 		if (towards.lengthSqr() > max * max) {
 			towards.normalize();

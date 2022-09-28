@@ -30,10 +30,10 @@ protected:
 	}
 
 	/// Given a number from 0 to pow(3, D), returns its ternary representation
-	inline void toTernary(int num, uint8_t digits[D]) {
+	inline void toTernary(int num, std::uint8_t digits[D]) {
 		assert(num >= 0 && num < powConstexpr(3, D));
 		
-		memset(digits, 0, D * sizeof(uint8_t));
+		std::memset(digits, 0, D * sizeof(std::uint8_t));
 		
 		int i = 0;
 		do {
@@ -63,7 +63,7 @@ public:
 	void add(Vec<real_t, D> pos, int value) {
 		int idx = cellFromPosition(pos);
 		assert(idx >= 0);
-		assert((size_t)idx < grid.size());
+		assert((std::size_t)idx < grid.size());
 		grid[idx].push_back(value);
 	}
 
@@ -82,7 +82,7 @@ public:
 
 		// Add all possible permutations of +/-/0 dx/dy/dz/...
 		// i.e. pos + dx - dy, pos - dx, pos + dz, etc.
-		uint8_t digits[D];
+		std::uint8_t digits[D];
 		for (int i = 0; i < powConstexpr(3, D); ++i) {
 
 			// add offsets to position in the various axes

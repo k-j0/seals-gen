@@ -69,7 +69,7 @@ public:
 	void specificJson(std::string& json) override;
 
 	/// Add specific info to the binary stream
-	void specificBinary(std::vector<uint8_t>& data) override;
+	void specificBinary(std::vector<std::uint8_t>& data) override;
 
 private:
 

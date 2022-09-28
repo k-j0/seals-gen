@@ -54,8 +54,8 @@ void Surface3::addParticle() {
 		addParticleEdgeDelaunay();
 		return;
 	default:
-		printf("Error: invalid growth strategy!");
-		exit(1);
+		std::printf("Error: invalid growth strategy!");
+		std::exit(1);
 	}
 }
 
@@ -93,16 +93,16 @@ void Surface3::specificJson(std::string& json) {
 
 }
 
-void Surface3::specificBinary(std::vector<uint8_t>& data) {
+void Surface3::specificBinary(std::vector<std::uint8_t>& data) {
 
 	// Particle positions
-	for (size_t i = 0; i < particles.size(); ++i) {
+	for (std::size_t i = 0; i < particles.size(); ++i) {
 		bio::writeVec(data, particles[i].position);
 	}
 
 	// Triangle indices
-	bio::writeSimple<int32_t>(data, (int32_t)triangles.size());
-	for (size_t i = 0; i < triangles.size(); ++i) {
+	bio::writeSimple<std::int32_t>(data, (std::int32_t)triangles.size());
+	for (std::size_t i = 0; i < triangles.size(); ++i) {
 		bio::writeVec(data, triangles[i]);
 	}
 
@@ -217,18 +217,18 @@ void Surface3::addParticleEdgeDelaunay() {
 			}
 		}
 		assert(b > -1);
-		assert((size_t)a < particles.size());
-		assert((size_t)b < particles.size());
+		assert((std::size_t)a < particles.size());
+		assert((std::size_t)b < particles.size());
 		Vec3 dir = particles[a].position - particles[b].position;
 		dir.normalize();
-		if (rand01() < abs(dir.Z())) {
+		if (rand01() < std::abs(dir.Z())) {
 			break;
 		}
 	} while (true);
 
 	// place particle between the two selected on the unit sphere
-	assert(a > -1 && (size_t)a < particles.size());
-	assert(b > -1 && (size_t)b < particles.size());
+	assert(a > -1 && (std::size_t)a < particles.size());
+	assert(b > -1 && (std::size_t)b < particles.size());
 	p.spherical = particles[a].spherical + particles[b].spherical;
 	p.spherical.normalize();
 

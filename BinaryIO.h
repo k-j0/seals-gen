@@ -9,10 +9,10 @@ namespace bio {
 
 	/// Writes a value of trivial type T (no pointers) to data as bytes
 	template<typename T>
-	void writeSimple(std::vector<uint8_t>& data, const T& val) {
+	void writeSimple(std::vector<std::uint8_t>& data, const T& val) {
 		union {
 			T original;
-			uint8_t bytes[sizeof(T)];
+			std::uint8_t bytes[sizeof(T)];
 		} o2b = {};
 		o2b.original = val;
 		for (std::size_t i = 0; i < sizeof(T); ++i) {
@@ -22,10 +22,10 @@ namespace bio {
 
 	/// Reads a value of trivial type T (no pointers) from data as bytes
 	template<typename T>
-	T readSimple(const std::vector<uint8_t>& data, size_t& at) {
+	T readSimple(const std::vector<std::uint8_t>& data, std::size_t& at) {
 		union {
 			T original;
-			uint8_t bytes[sizeof(T)];
+			std::uint8_t bytes[sizeof(T)];
 		} b2o = {};
 		for (std::size_t i = 0; i < sizeof(T); ++i) {
 			assert(at < data.size());
@@ -35,19 +35,19 @@ namespace bio {
 		return b2o.original;
 	}
 
-	void writeString(std::vector<uint8_t>& data, const std::string& val);
+	void writeString(std::vector<std::uint8_t>& data, const std::string& val);
 
-	std::string readString(const std::vector<uint8_t>& data, size_t& at);
+	std::string readString(const std::vector<std::uint8_t>& data, std::size_t& at);
 
 	template<typename T, int N>
-	void writeVec (std::vector<uint8_t>& data, const Vec<T, N>& val) {
+	void writeVec (std::vector<std::uint8_t>& data, const Vec<T, N>& val) {
 		for (int i = 0; i < N; ++i) {
 			writeSimple<T>(data, val[i]);
 		}
 	}
 
 	template<typename T, int N>
-	Vec<T, N> readVec (const std::vector<uint8_t>& data, size_t& at) {
+	Vec<T, N> readVec (const std::vector<std::uint8_t>& data, std::size_t& at) {
 		Vec<T, N> r;
 		for (int i = 0; i < N; ++i) {
 			r.set(i, readSimple<T>(data, at));

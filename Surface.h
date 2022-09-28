@@ -27,7 +27,7 @@ public:
 	virtual void addParticle() = 0;
 	virtual void update() = 0;
 	virtual std::string toJson(int runtimeMs) = 0;
-	virtual void toBinary(int runtimeMs, std::vector<uint8_t>& data) = 0;
+	virtual void toBinary(int runtimeMs, std::vector<std::uint8_t>& data) = 0;
 };
 
 
@@ -102,12 +102,12 @@ public:
 
 	/// Export to minimal binary format
 	/// Data may not be empty, in which case the surface info will be appended to the data vector, leaving existing contents as-is
-	void toBinary(int runtimeMs, std::vector<uint8_t>& data) final override;
-	virtual void specificBinary(std::vector<uint8_t>& data) = 0;
+	void toBinary(int runtimeMs, std::vector<std::uint8_t>& data) final override;
+	virtual void specificBinary(std::vector<std::uint8_t>& data) = 0;
 
 protected:
 
-	inline real_t rand01() { return real_t(abs(int(rng())) % 10000) / (real_t)10000; }
+	inline real_t rand01() { return real_t(std::abs(int(rng())) % 10000) / (real_t)10000; }
 	
 
 	/// Should be called whenever a new particle is added
@@ -177,7 +177,7 @@ void Surface<D, neighbour_iterator_t>::update() {
 		grid->sample(particles[i].position, cells);
 		for (const std::vector<int>* const cell : cells) if (cell) for (const int& j : *cell) {
 	#else // USE_GRID
-		for (size_t j = 0; j < particles.size(); ++j) {
+		for (std::size_t j = 0; j < particles.size(); ++j) {
 	#endif // !USE_GRID
 			if (i == j || areNeighbours(i, j)) continue; // same particle, or nearest neighbours
 
@@ -188,7 +188,7 @@ void Surface<D, neighbour_iterator_t>::update() {
 			real_t d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
-				towards.multiply(sqrt(d2) - repulsionLen);
+				towards.multiply(std::sqrt(d2) - repulsionLen);
 				particles[i].acceleration.add(towards.hadamard(params.repulsionAnisotropy));
 			}
 		}
@@ -201,7 +201,7 @@ void Surface<D, neighbour_iterator_t>::update() {
 
 			// attract if far, repel if too close
 			Vec<real_t, D> towards = particles[neighbour].position - particles[i].position;
-			real_t d = sqrt(towards.lengthSqr());
+			real_t d = std::sqrt(towards.lengthSqr());
 			towards.normalize();
 			towards.multiply(d - params.attractionMagnitude);
 			particles[i].acceleration.add(towards);
@@ -273,31 +273,31 @@ std::string Surface<D, neighbour_iterator_t>::toJson(int runtimeMs) {
 }
 
 template<int D, typename neighbour_iterator_t>
-void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<uint8_t>& data) {
+void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<std::uint8_t>& data) {
 
 	// Header, in front of any surface object in the binary file
 	data.push_back('S'); data.push_back('E'); data.push_back('L');
 	
 	// File version
-	bio::writeSimple<uint8_t>(data, 1);
+	bio::writeSimple<std::uint8_t>(data, 1);
 	
 	// Metadata
-	bio::writeSimple<uint8_t>(data, D);
+	bio::writeSimple<std::uint8_t>(data, D);
 	bio::writeSimple<int64_t>(data, time(nullptr));
 	bio::writeString(data, getMachineName());
-	bio::writeSimple<int32_t>(data, seed);
-	bio::writeSimple<int32_t>(data, t);
+	bio::writeSimple<std::int32_t>(data, seed);
+	bio::writeSimple<std::int32_t>(data, t);
 	bio::writeSimple<real_t>(data, params.attractionMagnitude);
 	bio::writeSimple<real_t>(data, params.repulsionMagnitudeFactor);
 	bio::writeSimple<real_t>(data, params.damping);
 	bio::writeSimple<real_t>(data, params.noise);
 	bio::writeVec(data, params.repulsionAnisotropy);
 	bio::writeSimple<real_t>(data, params.dt);
-	bio::writeSimple<int32_t>(data, runtimeMs);
+	bio::writeSimple<std::int32_t>(data, runtimeMs);
 	bio::writeSimple<real_t>(data, getVolume());
 
 	// Core data
-	bio::writeSimple<int32_t>(data, (int32_t)particles.size());
+	bio::writeSimple<std::int32_t>(data, (std::int32_t)particles.size());
 	specificBinary(data);
 
 	// EOS
