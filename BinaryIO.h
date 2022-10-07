@@ -107,5 +107,13 @@ namespace bio {
 		}
 		return r;
 	}
-
+	
+	template<typename T, typename Bytes=BufferedBinaryFileOutput<>>
+	void writeCollection (Bytes& data, const T& val) {
+		writeSimple<std::uint32_t>(data, val.size());
+		for (auto it = val.begin(); it != val.end(); it++) {
+			writeSimple(data, *it);
+		}
+	}
+	
 }
