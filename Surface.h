@@ -87,6 +87,9 @@ protected:
 	
 	// Must be implemented in derived classes; returns the full volume/area of the surface
 	virtual real_t getVolume() = 0;
+	
+	// Must be implemented in derived classes; returns a hint to indicate the type of surface this is, which will be inserted in output files
+	virtual std::string getTypeHint() = 0;
 
 public:
 	
@@ -256,6 +259,7 @@ std::string Surface<D, neighbour_iterator_t, Bytes>::toJson(int runtimeMs) {
 		"\t'machine': '" + getMachineName() + "',\n"
 		"\t'seed': " + std::to_string(seed) + ",\n"
 		"\t'dimension': " + std::to_string(D) + ",\n"
+		"\t'hint': " + getTypeHint() + ",\n"
 		"\t'timesteps': " + std::to_string(t) + ",\n"
 		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
 		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
@@ -280,10 +284,11 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	data.push_back('S'); data.push_back('E'); data.push_back('L');
 	
 	// File version
-	bio::writeSimple<std::uint8_t>(data, 1);
+	bio::writeSimple<std::uint8_t>(data, 2);
 	
 	// Metadata
 	bio::writeSimple<std::uint8_t>(data, D);
+	bio::writeString(data, getTypeHint());
 	bio::writeSimple<int64_t>(data, time(nullptr));
 	bio::writeString(data, getMachineName());
 	bio::writeSimple<std::int32_t>(data, seed);

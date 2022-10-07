@@ -71,6 +71,10 @@ protected:
 		}
 		return area * 0.5;
 	}
+	
+	inline std::string getTypeHint() override {
+		return "s2";
+	}
 
 public:
 

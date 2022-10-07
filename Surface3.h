@@ -57,6 +57,10 @@ protected:
 	inline real_t getVolume() override {
 		return 1.0; // @todo
 	}
+	
+	inline std::string getTypeHint() override {
+		return "s3";
+	}
 
 public:
 	
