@@ -111,6 +111,8 @@ int main(int argc, char** argv) {
 	long long totalRuntimeMs;
 	{
 		Runtime runtime(totalRuntimeMs);
+		std::size_t progressCheck = iterations / 255;
+		if (progressCheck == 0) progressCheck = 1;
 		for (int t = 0; t < iterations; ++t) {
 			
 			// update surface
@@ -121,7 +123,7 @@ int main(int argc, char** argv) {
 				surface->update();
 				
 				// recurrent outputs (console + snapshots)
-				if (t % (iterations / 255) == 0) { // 255 hits over the full generation (no matter iteration count)
+				if (t % progressCheck == 0) { // 255 hits over the full generation (no matter iteration count, unless lower than 255)
 					std::printf("%d %%...\r", t * 100 / iterations);
 					std::fflush(stdout);
 					auto millis = runtime.getMs();
