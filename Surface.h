@@ -21,18 +21,19 @@ WARNING_PUSH;
 WARNING_DISABLE_OMP_PRAGMAS;
 
 
+template<typename Bytes=bio::BufferedBinaryFileOutput<>>
 class SurfaceBase {
 public:
 	virtual ~SurfaceBase() { }
 	virtual void addParticle() = 0;
 	virtual void update() = 0;
 	virtual std::string toJson(int runtimeMs) = 0;
-	virtual void toBinary(int runtimeMs, std::vector<std::uint8_t>& data) = 0;
+	virtual void toBinary(int runtimeMs, Bytes& data) = 0;
 };
 
 
-template<int D, typename neighbour_iterator_t>
-class Surface : public SurfaceBase {
+template<int D, typename neighbour_iterator_t, typename Bytes=bio::BufferedBinaryFileOutput<>>
+class Surface : public SurfaceBase<Bytes> {
 
 public:
 
@@ -102,8 +103,8 @@ public:
 
 	/// Export to minimal binary format
 	/// Data may not be empty, in which case the surface info will be appended to the data vector, leaving existing contents as-is
-	void toBinary(int runtimeMs, std::vector<std::uint8_t>& data) final override;
-	virtual void specificBinary(std::vector<std::uint8_t>& data) = 0;
+	void toBinary(int runtimeMs, Bytes& data) final override;
+	virtual void specificBinary(Bytes& data) = 0;
 
 protected:
 
@@ -122,8 +123,8 @@ protected:
 
 
 
-template<int D, typename neighbour_iterator_t>
-Surface<D, neighbour_iterator_t>::Surface(Surface<D, neighbour_iterator_t>::Params params, int seed) :
+template<int D, typename neighbour_iterator_t, typename Bytes>
+Surface<D, neighbour_iterator_t, Bytes>::Surface(Surface<D, neighbour_iterator_t, Bytes>::Params params, int seed) :
 		params(params),
 		seed(seed),
 		rng(std::mt19937(seed)) {
@@ -135,8 +136,8 @@ Surface<D, neighbour_iterator_t>::Surface(Surface<D, neighbour_iterator_t>::Para
 }
 
 
-template<int D, typename neighbour_iterator_t>
-void Surface<D, neighbour_iterator_t>::update() {
+template<int D, typename neighbour_iterator_t, typename Bytes>
+void Surface<D, neighbour_iterator_t, Bytes>::update() {
 
 	int numParticles = (int)particles.size();
 	
@@ -247,8 +248,8 @@ void Surface<D, neighbour_iterator_t>::update() {
 }
 
 
-template<int D, typename neighbour_iterator_t>
-std::string Surface<D, neighbour_iterator_t>::toJson(int runtimeMs) {
+template<int D, typename neighbour_iterator_t, typename Bytes>
+std::string Surface<D, neighbour_iterator_t, Bytes>::toJson(int runtimeMs) {
 
 	std::string json = "{\n"
 		"\t'date': " + std::to_string(time(nullptr)) + ",\n"
@@ -272,8 +273,8 @@ std::string Surface<D, neighbour_iterator_t>::toJson(int runtimeMs) {
 	return json + "}";
 }
 
-template<int D, typename neighbour_iterator_t>
-void Surface<D, neighbour_iterator_t>::toBinary(int runtimeMs, std::vector<std::uint8_t>& data) {
+template<int D, typename neighbour_iterator_t, typename Bytes>
+void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& data) {
 
 	// Header, in front of any surface object in the binary file
 	data.push_back('S'); data.push_back('E'); data.push_back('L');

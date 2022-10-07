@@ -79,7 +79,7 @@ public:
 	void addParticle() override;
 
 	void specificJson(std::string& json) override;
-
-	void specificBinary(std::vector<std::uint8_t>& data) override;
+	
+	void specificBinary(bio::BufferedBinaryFileOutput<>& data) override;
 
 };

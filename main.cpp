@@ -20,7 +20,7 @@ WARNING_DISABLE_OMP_PRAGMAS;
 int main(int argc, char** argv) {
 	
 	// Read arguments
-	SurfaceBase* surface = nullptr;
+	SurfaceBase<>* surface = nullptr;
 	int iterations;
 	int particleGrowth;
 	bool writeJson;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 #endif
 	
 	std::string snapshotsJson = writeJson ? "[\n" : "";
-	std::vector<std::uint8_t> snapshotsBinary;
+	bio::BufferedBinaryFileOutput<> snapshotsBinary(outFile);
 	bool first = true;
 
 	// grow progressively
@@ -126,7 +126,6 @@ int main(int argc, char** argv) {
 					std::fflush(stdout);
 					auto millis = runtime.getMs();
 					surface->toBinary(millis, snapshotsBinary);
-					File::Write(outFile, snapshotsBinary);
 					if (writeJson) {
 						if (!first) {
 							snapshotsJson += ",\n";
@@ -150,7 +149,7 @@ int main(int argc, char** argv) {
 	
 	// Write the final snapshot
 	surface->toBinary(totalRuntimeMs, snapshotsBinary);
-	File::Write(outFile, snapshotsBinary);
+	snapshotsBinary.dump();
 	std::printf("Wrote results to %s", outFile.c_str());
 	if (writeJson) {
 		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntimeMs);
