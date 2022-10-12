@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
 					args.read<real_t>("boundary-growth", 0)
 				);
 			}
+			params.dt = args.read<real_t>("dt", 0.15);
 			Surface3::SpecificParams specificParams;
 			specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
 			std::string growthStrategy = args.read<std::string>("growth-strategy", "delaunay");
@@ -79,7 +80,7 @@ int main(int argc, char** argv) {
 					args.read<real_t>("boundary-extent", .05),
 					args.read<real_t>("boundary-growth", 0)
 				);
-				params.dt = 0.5;
+				params.dt = args.read<real_t>("dt", 0.5);
 				Tree2::SpecificParams specificParams;
 				specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
 				specificParams.ageProbability = args.read<real_t>("age-prob", 0.99);
@@ -97,7 +98,7 @@ int main(int argc, char** argv) {
 					args.read<real_t>("boundary-extent", .05),
 					args.read<real_t>("boundary-growth", 0)
 				);
-				params.dt = 0.5;
+				params.dt = args.read<real_t>("dt", 0.5);
 				Surface2::SpecificParams specificParams;
 				specificParams.initialParticleCount = args.read<int>("particles", 3);
 				specificParams.initialNoise = args.read<real_t>("initial-noise", 0);
