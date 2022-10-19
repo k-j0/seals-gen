@@ -13,7 +13,7 @@ public:
 	
 	struct SpecificParams {
 		bool attachFirstParticle = true;
-		real_t ageProbability = 0.99; // probability that a particle from which another grows will become too old to grow more
+		real_t ageProbability = 0.9; // probability that a particle from which another grows will become too old to grow more
 	};
 	
 private:

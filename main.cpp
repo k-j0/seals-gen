@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 				params.dt = args.read<real_t>("dt", 0.5);
 				Tree2::SpecificParams specificParams;
 				specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
-				specificParams.ageProbability = args.read<real_t>("age-prob", 0.99);
+				specificParams.ageProbability = args.read<real_t>("age-prob", 0.9);
 				surface = new Tree2(params, specificParams, args.read<int>("seed", 0));
 			} else {
 				Surface2::Params params;
