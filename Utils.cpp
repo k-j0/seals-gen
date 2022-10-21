@@ -20,13 +20,17 @@ std::string getMachineName() {
 	DWORD size = 64;
 	TCHAR name[64];
 	GetComputerName(name, &size);
-	char str[64];
-	std::size_t _;
-	wcstombs_s(&_, str, name, 64);
-	WARNING_PUSH;
-	WARNING_DISABLE_STRING_NUL_TERMINATED;
-		result = std::string(str);
-	WARNING_POP;
+	#ifndef UNICODE
+		result = std::string(name);
+	#else
+		char str[64];
+		std::size_t _;
+		wcstombs_s(&_, str, name, 64);
+		WARNING_PUSH;
+		WARNING_DISABLE_STRING_NUL_TERMINATED;
+			result = std::string(str);
+		WARNING_POP;
+	#endif
 #else
 	char name[64];
 	gethostname(name, 64);

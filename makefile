@@ -3,28 +3,31 @@ OUT := seals
 CC := g++
 CFLAGS := -fopenmp -O3 -Wall -Wextra -Werror -std=c++17 -m64 -DNDEBUG
 WITH_CUDA := 1
-CC_CUDA := nvcc
-CFLAGS_CUDA := -O3 -Wall -Wextra -Werror -std=c++17 -m64 -DNDEBUG
 
 SOURCES := $(wildcard *.cpp)
-SOURCES_CUDA := $(wildcard *.cu)
 OBJECTS := $(SOURCES:.cpp=.o)
-
-# on Cygwin, always turn off Cuda build
-ifeq ($(findstring CYGWIN,$(shell uname)), CYGWIN)
-	WITH_CUDA := 0
-endif
 
 # turn off Cuda support if NVCC isn't installed
 ifeq ($(shell which nvcc),)
-	WITH_CUDA := 0
+  ifeq ($(WITH_CUDA),0)
+    WITH_CUDA := 0
+    $(warning Turning off CUDA support because which nvcc returned ''.)
+  endif
 endif
 
-# if Cuda is on, build .cu files into the executable
+# if Cuda is on, build with nvcc and with the relevant compiler flags
 ifeq ($(WITH_CUDA),1)
-	CFLAGS += -DCUDA
-	CFLAGS_CUDA += -DCUDA
-	OBJECTS += $(SOURCES_CUDA:.cu=.co)
+  CC = nvcc
+  X_COMPILER_FLAGS := -fopenmp -O3 -Wall -Werror -Wextra
+  SOURCES_CUDA := $(wildcard *.cu)
+  ifeq ($(findstring CYGWIN,$(shell uname)),CYGWIN)
+    # cl.exe compiler flags & objects instead of gcc
+    X_COMPILER_FLAGS = /openmp /O2
+	OBJECTS = $(SOURCES:.cpp=.obj) $(SOURCES_CUDA:.cu=.obj)
+  else
+    OBJECTS += $(SOURCES_CUDA:.cu=.o)
+  endif
+  CFLAGS = -O3 -Xcompiler="$(X_COMPILER_FLAGS)" -Werror=all-warnings -std=c++17 -m64 -DNDEBUG -DCUDA
 endif
 
 .PHONY: all clean
@@ -34,13 +37,21 @@ all: $(OUT)
 $(OUT): $(OBJECTS)
 	$(CC) $(CFLAGS) $^ -o $@
 
+# gcc objects
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.cu
+	$(CC) $(CFLAGS) -c $< -o $@
 
-%.co: %.cu
-	$(CC_CUDA) $(CFLAGS_CUDA) -c $< -o $@
+# cl.exe objects
+%.obj: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+%.obj: %.cu
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OUT)
 	rm -f *.o
-	rm -f *.co
+	rm -f *.obj
+	rm -f *.exp
+	rm -f *.lib

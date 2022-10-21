@@ -64,8 +64,9 @@ protected:
 	inline real_t getVolume() override {
 		// compute area enclosed within the polygon
 		real_t area = 0;
+		int particleCount = int(particles.size());
 		#pragma omp parallel for reduction(+: area)
-		for (std::size_t i = 0; i < particles.size(); ++i) {
+		for (int i = 0; i < particleCount; ++i) {
 			const std::array<int, 2>& neighbours = neighbourIndices[i];
 			area += particles[i].position.X() * (particles[neighbours[1]].position.Y() - particles[neighbours[0]].position.Y());
 		}
