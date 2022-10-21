@@ -13,7 +13,7 @@
 #include "warnings.h"
 #include "Arguments.h"
 #include "Runtime.h"
-#include "cuda_test.h"
+#include "cuda_info.h"
 
 WARNING_DISABLE_OMP_PRAGMAS;
 
@@ -116,10 +116,10 @@ int main(int argc, char** argv) {
 		outFile = args.read<std::string>("out", "results/surface.bin");
 	}
 	
-	std::printf("Starting...\n\n");
-	
 #ifdef CUDA
-	testCuda();
+	std::printf("%s\n\n", getCudaInfo().c_str());
+#else
+	std::printf("CUDA disabled.\n\n");
 #endif
 	
 #ifdef _OPENMP
@@ -128,7 +128,11 @@ int main(int argc, char** argv) {
 	{
 		std::printf("OpenMP enabled, %d threads.\n\n", omp_get_num_threads());
 	}
+#else
+	std::printf("OpenMP disabled.\n\n");
 #endif
+	
+	std::printf("Starting...\n\n");
 	
 	std::string snapshotsJson = writeJson ? "[\n" : "";
 	bio::BufferedBinaryFileOutput<> snapshotsBinary(outFile);
