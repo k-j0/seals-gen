@@ -13,7 +13,7 @@
 #include "warnings.h"
 #include "Arguments.h"
 #include "Runtime.h"
-
+#include "cuda_test.h"
 
 WARNING_DISABLE_OMP_PRAGMAS;
 
@@ -117,7 +117,11 @@ int main(int argc, char** argv) {
 	}
 	
 	std::printf("Starting...\n\n");
-
+	
+#ifdef CUDA
+	testCuda();
+#endif
+	
 #ifdef _OPENMP
 	#pragma omp parallel
 	#pragma omp master

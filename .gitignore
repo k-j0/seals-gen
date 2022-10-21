@@ -6,6 +6,7 @@
 # Exclude binaries built with g++
 *.exe
 *.o
+*.co
 
 # User-specific files
 *.rsuser
