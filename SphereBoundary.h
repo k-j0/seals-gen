@@ -31,7 +31,7 @@ public:
 
 	void updateAttachedParticle(Particle<D>* particle, real_t maximumAllowedDisplacement) override {
 		Vec<real_t, D> target = particle->position.normalized();
-		target.multiply(radius);
+		target *= radius;
 		particle->position.moveTowards(target, maximumAllowedDisplacement);
 	}
 
@@ -47,7 +47,7 @@ public:
 	inline void hard(Vec<real_t, D>& position) override {
 		if (position.lengthSqr() > radius * radius) {
 			position.normalize();
-			position.multiply(radius);
+			position *= radius;
 		}
 	}
 

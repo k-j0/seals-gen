@@ -1,7 +1,7 @@
 
 OUT := seals
 CC := g++
-CFLAGS_CORE := -fopenmp -O3 -Wall -Wextra -Werror
+CFLAGS_CORE := -fopenmp -O3 -Wall -Wextra -Werror -fmax-errors=4
 CFLAGS_CORE_CL := /openmp /O2
 CFLAGS_EXTRA := -O3 -std=c++17 -m64 -DNDEBUG
 WITH_CUDA := 1

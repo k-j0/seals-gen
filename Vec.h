@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <string>
+#include <random>
 #include "warnings.h"
 #include "real.h"
 
@@ -61,6 +62,17 @@ WARNING_POP;
 		Vec<T, N> one;
 		for (int i = 0; i < N; ++i) one.set(i, (T)1);
 		return one;
+	}
+	
+	static inline Vec<T, N> RandomUnit(std::mt19937& rng) {
+		Vec<T, N> result;
+		// https://dl.acm.org/doi/10.1145/377939.377946
+		std::normal_distribution<real_t> gauss01(0, 1);
+		do {
+			for (int i = 0; i < N; ++i) result.set(i, gauss01(rng));
+		} while (result.isZero()); // unlikely to loop, it's most likely that a non-zero vector will be generated first-try.
+		result.normalize();
+		return result;
 	}
 
 
@@ -126,7 +138,7 @@ WARNING_POP;
 
 	/// Normalized vector
 	inline Vec<T, N> normalized() const {
-		T length = (T)std::sqrt((real_t)lengthSqr());
+		T length = (T)std::sqrt(lengthSqr());
 		Vec<T, N> ret;
 		for (int i = 0; i < N; ++i) ret.set(i, length > (T) 0 ? get(i) / length : (T)0);
 		return ret;
@@ -145,22 +157,16 @@ WARNING_POP;
 	/// Component-wise addition & subtraction
 	inline Vec<T, N> operator+(const Vec<T, N>& v) const {
 		Vec<T, N> ret;
-		for (int i = 0; i < N; ++i) ret.set(i, v[i] + get(i));
+		for (int i = 0; i < N; ++i) ret.set(i, get(i) + v[i]);
 		return ret;
 	}
 
-	inline Vec<T, N> operator+=(const Vec<T, N>& v) {
-		Vec<T, N> n = (*this) + v;
-		for (int i = 0; i < N; ++i) set(i, n[i]);
-		return *this;
-	}
-
-	inline void add(const T& f) {
-		for (int i = 0; i < N; ++i) set(i, get(i) + f);
-	}
-
-	inline void add(const Vec<T, N>& v) {
+	inline void operator+= (const Vec<T, N>& v) {
 		for (int i = 0; i < N; ++i) set(i, get(i) + v[i]);
+	}
+
+	inline void operator+= (const T& f) {
+		for (int i = 0; i < N; ++i) set(i, get(i) + f);
 	}
 
 	inline Vec<T, N> operator-(const Vec<T, N>& v) const {
@@ -182,7 +188,7 @@ WARNING_POP;
 		return ret;
 	}
 
-	inline void multiply(const T& f) {
+	inline void operator*=(const T& f) {
 		for (int i = 0; i < N; ++i) set(i, get(i) * f);
 	}
 
@@ -246,7 +252,7 @@ WARNING_POP;
 		Vec<T, N> towards = target - (*this);
 		if (towards.lengthSqr() > max * max) {
 			towards.normalize();
-			towards.multiply(max);
+			towards *= max;
 		}
 		this->operator+=(towards);
 	}
@@ -282,6 +288,11 @@ WARNING_POP;
 	bool isNaN() const {
 		for (int i = 0; i < N; ++i) if (std::isnan(get(i))) return true;
 		return false;
+	}
+	
+	bool isZero() const {
+		for (int i = 0; i < N; ++i) if (get(i) != T(0)) return false;
+		return true;
 	}
 
 

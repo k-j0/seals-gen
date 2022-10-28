@@ -161,18 +161,18 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 		}
 
 		// dampen acceleration
-		particles[i].acceleration.multiply(params.damping * params.damping);
+		particles[i].acceleration *= params.damping * params.damping;
 
 		// boundary restriction force
 		if (params.boundary) {
-			particles[i].acceleration.add(params.boundary->force(particles[i].position));
+			particles[i].acceleration += params.boundary->force(particles[i].position);
 		}
 		
 		// pressure force
 		if (params.pressure > 0) {
 			Vec<real_t, D> normal = getNormal(i);
-			normal.multiply(pressureAmount);
-			particles[i].acceleration.add(normal);
+			normal *= pressureAmount;
+			particles[i].acceleration += normal;
 		}
 		
 		// iterate over non-neighbour particles
@@ -192,8 +192,8 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 			real_t d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
-				towards.multiply(std::sqrt(d2) - repulsionLen);
-				particles[i].acceleration.add(towards.hadamard(params.repulsionAnisotropy));
+				towards *= std::sqrt(d2) - repulsionLen;
+				particles[i].acceleration += towards.hadamard(params.repulsionAnisotropy);
 			}
 		}
 
@@ -207,8 +207,8 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 			Vec<real_t, D> towards = particles[neighbour].position - particles[i].position;
 			real_t d = std::sqrt(towards.lengthSqr());
 			towards.normalize();
-			towards.multiply(d - params.attractionMagnitude);
-			particles[i].acceleration.add(towards);
+			towards *= d - params.attractionMagnitude;
+			particles[i].acceleration += towards;
 		}
 	}
 
@@ -220,13 +220,13 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 		if (particles[i].attached) continue;
 
 		// dampen velocity
-		particles[i].velocity.multiply(params.damping);
+		particles[i].velocity *= params.damping;
 
 		// apply acceleration
-		particles[i].velocity.add(particles[i].acceleration * params.dt);
+		particles[i].velocity += particles[i].acceleration * params.dt;
 
 		// apply velocity
-		particles[i].position.add(particles[i].velocity * params.dt);
+		particles[i].position += particles[i].velocity * params.dt;
 
 		// apply hard boundary
 		if (params.boundary) {

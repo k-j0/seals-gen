@@ -1,12 +1,8 @@
 
 #include <chrono>
 #include "Options.h"
-#include "Surface3.h"
-#include "Surface2.h"
-#include "Tree2.h"
+#include "SurfaceFactory.h"
 #include "File.h"
-#include "SphereBoundary.h"
-#include "CylinderBoundary.h"
 #ifdef _OPENMP
 	#include <omp.h>
 #endif
@@ -20,7 +16,7 @@ WARNING_DISABLE_OMP_PRAGMAS;
 
 int main(int argc, char** argv) {
 	
-	// Read arguments @todo: cleanup and extract into a factory helper
+	// Read arguments
 	SurfaceBase<>* surface = nullptr;
 	int iterations;
 	int particleGrowth;
@@ -28,88 +24,7 @@ int main(int argc, char** argv) {
 	std::string outFile;
 	{
 		Arguments args(argc, argv);
-		int d = args.read<int>("d", 2);
-		std::string type = args.read<std::string>("t", "surf");
-		if (d == 3) {
-			Surface3::Params params;
-			params.attractionMagnitude = args.read<real_t>("magnitude", .025);
-			params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
-			params.damping = args.read<real_t>("damping", .15);
-			params.noise = args.read<real_t>("noise", .25);
-			real_t aniso = args.read<real_t>("anisotropy", 1);
-			params.repulsionAnisotropy = Vec3(1.0, aniso, aniso);
-			std::string boundaryType = args.read<std::string>("boundary", "cylinder");
-			if (boundaryType.compare("cylinder") == 0) {
-				params.boundary = std::make_shared<CylinderBoundary>(
-					args.read<real_t>("boundary-radius", .15),
-					args.read<real_t>("boundary-max-radius", .15),
-					args.read<real_t>("boundary-extent", .05),
-					args.read<real_t>("boundary-growth", 0)
-				);
-			} else if (boundaryType.compare("sphere") == 0) {
-				params.boundary = std::make_shared<SphereBoundary<3>>(
-					args.read<real_t>("boundary-radius", .15),
-					args.read<real_t>("boundary-max-radius", .15),
-					args.read<real_t>("boundary-extent", .05),
-					args.read<real_t>("boundary-growth", 0)
-				);
-			}
-			params.dt = args.read<real_t>("dt", 0.15);
-			Surface3::SpecificParams specificParams;
-			specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
-			std::string growthStrategy = args.read<std::string>("growth-strategy", "delaunay");
-			if (growthStrategy.compare("edge") == 0) {
-				specificParams.strategy = Surface3::GrowthStrategy::ON_EDGE;
-			} else if (growthStrategy.compare("delaunay-aniso-edge") == 0) {
-				specificParams.strategy = Surface3::GrowthStrategy::DELAUNAY_ANISO_EDGE;
-			} else {
-				specificParams.strategy = Surface3::GrowthStrategy::DELAUNAY;
-			}
-			surface = new Surface3(params, specificParams, args.read<int>("seed", 0));
-		} else if (d == 2) {
-			if (type.compare("tree") == 0) {
-				Tree2::Params params;
-				params.attractionMagnitude = args.read<real_t>("magnitude", .01);
-				params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
-				params.damping = args.read<real_t>("damping", .5);
-				params.noise = args.read<real_t>("noise", .25);
-				params.pressure = args.read<real_t>("pressure", 0);
-				params.boundary = std::make_shared<SphereBoundary<2>>(
-					args.read<real_t>("boundary-radius", .5),
-					args.read<real_t>("boundary-max-radius", .5),
-					args.read<real_t>("boundary-extent", .05),
-					args.read<real_t>("boundary-growth", 0)
-				);
-				params.dt = args.read<real_t>("dt", 0.5);
-				Tree2::SpecificParams specificParams;
-				specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
-				specificParams.ageProbability = args.read<real_t>("age-prob", 0.9);
-				surface = new Tree2(params, specificParams, args.read<int>("seed", 0));
-			} else {
-				Surface2::Params params;
-				params.attractionMagnitude = args.read<real_t>("magnitude", .01);
-				params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
-				params.damping = args.read<real_t>("damping", .5);
-				params.noise = args.read<real_t>("noise", .25);
-				params.pressure = args.read<real_t>("pressure", 0);
-				params.boundary = std::make_shared<SphereBoundary<2>>(
-					args.read<real_t>("boundary-radius", .5),
-					args.read<real_t>("boundary-max-radius", .5),
-					args.read<real_t>("boundary-extent", .05),
-					args.read<real_t>("boundary-growth", 0)
-				);
-				params.dt = args.read<real_t>("dt", 0.5);
-				Surface2::SpecificParams specificParams;
-				specificParams.initialParticleCount = args.read<int>("particles", 3);
-				specificParams.initialNoise = args.read<real_t>("initial-noise", 0);
-				specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
-				specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
-				surface = new Surface2(params, specificParams, args.read<int>("seed", 0));
-			}
-		} else {
-			std::printf("Error: invalid dimensionality %d! Must select 2 or 3.", d);
-			std::exit(1);
-		}
+		surface = SurfaceFactory::build(args);
 		iterations = args.read<int>("iter", 600);
 		particleGrowth = args.read<int>("growth", 5);
 		writeJson = args.read<bool>("json", false);

@@ -22,8 +22,8 @@ protected:
 
 	/// Given a position in D space, returns the cell index
 	inline int cellFromPosition(Vec<real_t, D> pos) const {
-		pos.add((real_t)0.5);
-		pos.multiply((real_t)resolution);
+		pos += real_t(0.5);
+		pos *= real_t(resolution);
 		Vec<int, D> iPos = pos.floor();
 		if (iPos < 0 || iPos >= resolution) return -1;
 		return iPos.index(resolution);
