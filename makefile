@@ -12,7 +12,7 @@ CFLAGS := $(CFLAGS_CORE) $(CFLAGS_EXTRA)
 
 # turn off Cuda support if NVCC isn't installed
 ifeq ($(shell which nvcc),)
-  ifeq ($(WITH_CUDA),0)
+  ifeq ($(WITH_CUDA),1)
     WITH_CUDA := 0
     $(warning Turning off CUDA support because which nvcc returned ''.)
   endif
