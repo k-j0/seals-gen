@@ -20,7 +20,7 @@ namespace SurfaceFactory {
             params.damping = args.read<real_t>("damping", .15);
             params.noise = args.read<real_t>("noise", .25);
             real_t aniso = args.read<real_t>("anisotropy", 1);
-            params.repulsionAnisotropy = Vec3(1.0, aniso, aniso);
+            params.repulsionAnisotropy = Vec3(aniso, aniso, 1.0);
             std::string boundaryType = args.read<std::string>("boundary", "cylinder");
             if (boundaryType.compare("cylinder") == 0) {
                 params.boundary = std::make_shared<CylinderBoundary>(
@@ -78,13 +78,13 @@ namespace SurfaceFactory {
         
         // Read base dimensionality (2 or 3) and type (surf or tree)
         int d = args.read<int>("d", 2);
-        std::string type = args.read<std::string>("t", "surf");
+        bool tree = args.read<bool>("tree", false);
         
         int seed = args.read<int>("seed", 0);
         
         // Depending on dimensionality and type, build up the model to use
         if (d == 3) {
-            if (type.compare("tree") == 0) {
+            if (tree) {
                 surface = new Tree<3>(buildSurface3Params<Tree<3>>(args), buildTreeSParams<3>(args), seed);
             } else {
                 auto params = buildSurface3Params<>(args);
@@ -101,7 +101,7 @@ namespace SurfaceFactory {
                 surface = new Surface3(params, specificParams, seed);
             }
         } else if (d == 2) {
-            if (type.compare("tree") == 0) {
+            if (tree) {
                 surface = new Tree<2>(buildSurface2Params<Tree<2>>(args), buildTreeSParams<2>(args), seed);
             } else {
                 auto params = buildSurface2Params<>(args);
