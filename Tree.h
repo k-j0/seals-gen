@@ -27,6 +27,8 @@ public:
 		bool attachFirstParticle = true;
 		real_t ageProbability = 0.9; // probability that a particle from which another grows will become too old to grow more
 		real_t newGrowthDistance = 0.1; // distance from old particles that new growth happens at, as a fraction of the attraction magnitude
+		int minBranchLength = 3;
+		int maxBranchLength = 10;
 	};
 	
 private:
@@ -36,6 +38,24 @@ private:
 	
 	std::vector<std::unordered_set<int>> neighbourIndices; // for each particle, neighbourIndices provides all the neighbours
 	std::vector<int> youngIndices; // set of particle indices that are still considered 'young' enough for new growth to occur
+	
+	// Given a particle idx, returns the number of particles that need to be traversed to get to a branch
+	inline int distanceToBranch (int i, int comingFrom = -1) {
+		
+		// if the node has more than 2 neighbours, it's a branch
+		if (neighbourIndices[i].size() > 2) {
+			return 0;
+		}
+		
+		// go over the neighbours (max 2 iterations), ignoring the node we're coming from, and return the branch distance of the new neighbour
+		for (auto it = neighbourIndices[i].begin(); it != neighbourIndices[i].end(); it++) {
+			if (*it == comingFrom) continue;
+			return 1 + distanceToBranch(*it, i);
+		}
+		
+		// if we get here, the only neighbour for the node is the node we're coming from, i.e. no more nodes to explore
+		return 0;
+	}
 	
 protected:
 	
@@ -122,8 +142,19 @@ void Tree<D>::addParticle() {
     youngIndices.push_back(newIdx);
     addParticleToGrid(newIdx);
     
-    // mark parent particle as being too old for new growth with a random probability
-    if (rand01() <= specificParams.ageProbability) {
+    // mark parent particle as being too old for new growth with a random probability if the branch is within minBranchLength and maxBranchLength
+	// or if the branch is too small to branch off
+	// on the other hand if the branch is too long, force the node to accept new growth sometime in the future
+	int branchLength = distanceToBranch(newIdx);
+	bool allowGrowth =
+		branchLength <= specificParams.minBranchLength ?
+			false :
+		branchLength >= specificParams.maxBranchLength ?
+			true :
+		rand01() >= specificParams.ageProbability ?
+			true :
+			false;
+    if (!allowGrowth) {
         // effectively swap the young indices for the two particles and remove the last element
         // (O(1) deletion)
         youngIndices[youngIdx] = youngIndices.back();

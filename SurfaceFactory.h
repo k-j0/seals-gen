@@ -65,6 +65,8 @@ namespace SurfaceFactory {
             specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
             specificParams.ageProbability = args.read<real_t>("age-prob", 0.9);
             specificParams.newGrowthDistance = args.read<real_t>("growth-distance", 0.1);
+            specificParams.minBranchLength = args.read<int>("min-branch-len", 3);
+            specificParams.maxBranchLength = args.read<int>("max-branch-len", 10);
             return specificParams;
         }
         
