@@ -28,7 +28,11 @@ int main(int argc, char** argv) {
 		iterations = args.read<int>("iter", 600);
 		particleGrowth = args.read<int>("growth", 5);
 		writeJson = args.read<bool>("json", false);
-		outFile = args.read<std::string>("out", "results/surface.bin");
+		std::string allArgs = "";
+		for (int i = 1; i < argc; ++i) {
+			allArgs += argv[i] + std::string(" ");
+		}
+		outFile = args.read<std::string>("out", "results/" + allArgs + "[" + getGitHash() + "].bin");
 	}
 	
 #ifdef CUDA

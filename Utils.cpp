@@ -1,6 +1,8 @@
 
 #include "Utils.h"
 
+#include <fstream>
+#include <sstream>
 #ifdef _WIN32
 #include <windows.h>
 #elif defined(__CYGWIN__)
@@ -38,4 +40,21 @@ std::string getMachineName() {
 #endif
 	isSet = true;
 	return result;
+}
+
+
+std::string getGitHash () {
+	// Reads .git/HEAD file to find the ref, then reads the ref file to get the hash
+	
+	std::ifstream headFile(".git/HEAD");
+	std::stringstream headBuffer;
+	headBuffer << headFile.rdbuf();
+	std::string head = headBuffer.str();
+	head = head.substr(5, head.size()-6);// "ref: ".length
+	
+	std::ifstream refFile(".git/" + head);
+	std::stringstream refBuffer;
+	refBuffer << refFile.rdbuf();
+	
+	return refBuffer.str().substr(0, 8); // first 8 characters only for the short hash
 }
