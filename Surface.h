@@ -284,7 +284,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	data.push_back('S'); data.push_back('E'); data.push_back('L');
 	
 	// File version
-	bio::writeSimple<std::uint8_t>(data, 2);
+	bio::writeSimple<std::uint8_t>(data, 3);
 	
 	// Metadata
 	bio::writeSimple<std::uint8_t>(data, D);

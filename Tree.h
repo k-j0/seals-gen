@@ -162,4 +162,5 @@ void Tree<D>::specificBinary(bio::BufferedBinaryFileOutput<>& data) {
         bio::writeVec(data, particles[i].position);
         bio::writeCollection(data, neighbourIndices[i]);
     }
+	bio::writeCollection(data, youngIndices);
 }
