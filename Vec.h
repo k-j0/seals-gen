@@ -223,8 +223,20 @@ WARNING_POP;
 	/// i.e. [ 0, 0, 0 ] -> 0, [ 1, 1, 1 ] -> 1 + width + width * height, [ 0, 2 ] -> 2 * width, etc.
 	inline int index(const int& range) const {
 		int idx = 0;
-		for (int i = 0; i < N; ++i) {
-			idx += int(get(i) * std::pow(range, i));
+		if constexpr (N >= 2 && N <= 4) {
+			// specialization for 2-, 3- and 4-component vectors to get rid of expensive std::pow calls
+			idx += int(components[0]);
+			idx += int(components[1] * range);
+			if constexpr (N >= 3) {
+				idx += int(components[2] * range * range);
+				if constexpr (N >= 4) {
+					idx += int(components[3] * range * range * range);
+				}
+			}
+		} else {
+			for (int i = 0; i < N; ++i) {
+				idx += int(get(i) * std::pow(range, i));
+			}
 		}
 		return idx;
 	}
