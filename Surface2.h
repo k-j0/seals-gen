@@ -3,6 +3,9 @@
 #include "Surface.h"
 
 #include "real.h"
+#include "warnings.h"
+
+WARNING_DISABLE_OMP_PRAGMAS;
 
 
 /// Represents a self-avoiding surface in 2D space, made up of a certain number of particles connected in one line
@@ -70,7 +73,7 @@ protected:
 			const std::array<int, 2>& neighbours = neighbourIndices[i];
 			area += particles[i].position.X() * (particles[neighbours[1]].position.Y() - particles[neighbours[0]].position.Y());
 		}
-		return area * 0.5;
+		return area * real_t(0.5);
 	}
 	
 	inline std::string getTypeHint() override {

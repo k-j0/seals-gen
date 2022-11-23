@@ -25,8 +25,8 @@ public:
 	
 	struct SpecificParams {
 		bool attachFirstParticle = true;
-		real_t ageProbability = 0.9; // probability that a particle from which another grows will become too old to grow more
-		real_t newGrowthDistance = 0.1; // distance from old particles that new growth happens at, as a fraction of the attraction magnitude
+		real_t ageProbability = real_t(.9); // probability that a particle from which another grows will become too old to grow more
+		real_t newGrowthDistance = real_t(.1); // distance from old particles that new growth happens at, as a fraction of the attraction magnitude
 		int minBranchLength = 3;
 		int maxBranchLength = 10;
 	};

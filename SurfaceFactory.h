@@ -15,47 +15,47 @@ namespace SurfaceFactory {
         template<typename T = Surface3>
         typename T::Params buildSurface3Params (Arguments& args) {
             typename T::Params params;
-            params.attractionMagnitude = args.read<real_t>("magnitude", .025);
-            params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
-            params.damping = args.read<real_t>("damping", .15);
-            params.noise = args.read<real_t>("noise", .25);
-            real_t aniso = args.read<real_t>("anisotropy", 1);
-            params.repulsionAnisotropy = Vec3(aniso, aniso, 1.0);
+            params.attractionMagnitude = args.read<real_t>("magnitude", real_t(.025));
+            params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", real_t(2.1));
+            params.damping = args.read<real_t>("damping", real_t(.15));
+            params.noise = args.read<real_t>("noise", real_t(.25));
+            real_t aniso = args.read<real_t>("anisotropy", real_t(1));
+            params.repulsionAnisotropy = Vec3(aniso, aniso, real_t(1.0));
             std::string boundaryType = args.read<std::string>("boundary", "cylinder");
             if (boundaryType.compare("cylinder") == 0) {
                 params.boundary = std::make_shared<CylinderBoundary>(
-                    args.read<real_t>("boundary-radius", .15),
-                    args.read<real_t>("boundary-max-radius", .15),
-                    args.read<real_t>("boundary-extent", .05),
-                    args.read<real_t>("boundary-growth", 0)
+                    args.read<real_t>("boundary-radius", real_t(.15)),
+                    args.read<real_t>("boundary-max-radius", real_t(.15)),
+                    args.read<real_t>("boundary-extent", real_t(.05)),
+                    args.read<real_t>("boundary-growth", real_t(0))
                 );
             } else if (boundaryType.compare("sphere") == 0) {
                 params.boundary = std::make_shared<SphereBoundary<3>>(
-                    args.read<real_t>("boundary-radius", .15),
-                    args.read<real_t>("boundary-max-radius", .15),
-                    args.read<real_t>("boundary-extent", .05),
-                    args.read<real_t>("boundary-growth", 0)
+                    args.read<real_t>("boundary-radius", real_t(.15)),
+                    args.read<real_t>("boundary-max-radius", real_t(.15)),
+                    args.read<real_t>("boundary-extent", real_t(.05)),
+                    args.read<real_t>("boundary-growth", real_t(0))
                 );
             }
-            params.dt = args.read<real_t>("dt", 0.15);
+            params.dt = args.read<real_t>("dt", real_t(.15));
             return params;
         }
         
         template<typename T = Surface2>
         typename T::Params buildSurface2Params (Arguments& args) {
             typename T::Params params;
-            params.attractionMagnitude = args.read<real_t>("magnitude", .01);
-            params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", 2.1);
-            params.damping = args.read<real_t>("damping", .5);
-            params.noise = args.read<real_t>("noise", .25);
-            params.pressure = args.read<real_t>("pressure", 0);
+            params.attractionMagnitude = args.read<real_t>("magnitude", real_t(.01));
+            params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", real_t(2.1));
+            params.damping = args.read<real_t>("damping", real_t(.5));
+            params.noise = args.read<real_t>("noise", real_t(.25));
+            params.pressure = args.read<real_t>("pressure", real_t(0));
             params.boundary = std::make_shared<SphereBoundary<2>>(
-                args.read<real_t>("boundary-radius", .5),
-                args.read<real_t>("boundary-max-radius", .5),
-                args.read<real_t>("boundary-extent", .05),
-                args.read<real_t>("boundary-growth", 0)
+                args.read<real_t>("boundary-radius", real_t(.5)),
+                args.read<real_t>("boundary-max-radius", real_t(.5)),
+                args.read<real_t>("boundary-extent", real_t(.05)),
+                args.read<real_t>("boundary-growth", real_t(0))
             );
-            params.dt = args.read<real_t>("dt", 0.5);
+            params.dt = args.read<real_t>("dt", real_t(0.5));
             return params;
         }
         
@@ -63,8 +63,8 @@ namespace SurfaceFactory {
         typename Tree<D>::SpecificParams buildTreeSParams (Arguments& args) {
             typename Tree<D>::SpecificParams specificParams;
             specificParams.attachFirstParticle = args.read<bool>("attach-first", false);
-            specificParams.ageProbability = args.read<real_t>("age-prob", 0.9);
-            specificParams.newGrowthDistance = args.read<real_t>("growth-distance", 0.1);
+            specificParams.ageProbability = args.read<real_t>("age-prob", real_t(.9));
+            specificParams.newGrowthDistance = args.read<real_t>("growth-distance", real_t(.1));
             specificParams.minBranchLength = args.read<int>("min-branch-len", 3);
             specificParams.maxBranchLength = args.read<int>("max-branch-len", 10);
             return specificParams;

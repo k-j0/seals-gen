@@ -10,8 +10,10 @@
 #include "Arguments.h"
 #include "Runtime.h"
 #include "cuda_info.h"
+#include <stdio.h>
 
 WARNING_DISABLE_OMP_PRAGMAS;
+WARNING_DISABLE_STACK_SIZE;
 
 
 int main(int argc, char** argv) {
@@ -77,12 +79,12 @@ int main(int argc, char** argv) {
 					std::printf("%d %%...\r", t * 100 / iterations);
 					std::fflush(stdout);
 					auto millis = runtime.getMs();
-					surface->toBinary(millis, snapshotsBinary);
+					surface->toBinary(int(millis), snapshotsBinary);
 					if (writeJson) {
 						if (!first) {
 							snapshotsJson += ",\n";
 						}
-						snapshotsJson += surface->toJson(millis);
+						snapshotsJson += surface->toJson(int(millis));
 						first = false;
 						File::Write("results/surface.json", snapshotsJson + "\n]");
 					}
@@ -100,11 +102,11 @@ int main(int argc, char** argv) {
 	}
 	
 	// Write the final snapshot
-	surface->toBinary(totalRuntimeMs, snapshotsBinary);
+	surface->toBinary(int(totalRuntimeMs), snapshotsBinary);
 	snapshotsBinary.dump();
 	std::printf("Wrote results to %s", outFile.c_str());
 	if (writeJson) {
-		snapshotsJson += (first ? "" : ",\n") + surface->toJson(totalRuntimeMs);
+		snapshotsJson += (first ? "" : ",\n") + surface->toJson(int(totalRuntimeMs));
 		File::Write("results/surface.json", snapshotsJson + "\n]");
 		std::printf(" and results/surface.json");
 	}

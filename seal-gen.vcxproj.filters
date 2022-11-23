@@ -95,5 +95,20 @@
     <ClInclude Include="real.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="warnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Arguments.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Runtime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SurfaceFactory.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>Header Files\surface</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

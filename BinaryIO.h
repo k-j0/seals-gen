@@ -26,8 +26,17 @@ namespace bio {
 	public:
 		
 		// Opens the file to start writing
-		BufferedBinaryFileOutput(std::string filename) :
-			file(std::fopen(filename.c_str(), "wb")) {}
+		BufferedBinaryFileOutput(std::string filename)
+		#ifndef _MSC_VER
+			: file(std::fopen(filename.c_str(), "wb")) {}
+		#else
+			{
+				if (fopen_s(&file, filename.c_str(), "wb") != 0) {
+					std::printf("File %s could not be open for binary write, aborting.\n", filename.c_str());
+					std::exit(1);
+				}
+			}
+		#endif
 		
 		/// Adds the byte to the buffer and if necessary dumps out contents into the file
 		inline void push_back(const std::uint8_t elem) {
@@ -110,7 +119,7 @@ namespace bio {
 	
 	template<typename T, typename Bytes=BufferedBinaryFileOutput<>>
 	void writeCollection (Bytes& data, const T& val) {
-		writeSimple<std::uint32_t>(data, val.size());
+		writeSimple<std::uint32_t>(data, std::uint32_t(val.size()));
 		for (auto it = val.begin(); it != val.end(); it++) {
 			writeSimple(data, *it);
 		}
