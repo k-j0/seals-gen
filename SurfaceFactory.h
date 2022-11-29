@@ -110,6 +110,7 @@ namespace SurfaceFactory {
                 } else {
                     specificParams.strategy = Surface3::GrowthStrategy::DELAUNAY;
                 }
+                specificParams.surfaceTensionMultiplier = args.read<real_t>("surface-tension", 1);
                 surface = new Surface3(params, specificParams, seed);
             }
         } else if (d == 2) {

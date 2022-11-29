@@ -19,6 +19,7 @@ public:
 	struct SpecificParams {
 		bool attachFirstParticle = false; // if true, attaches the first particle to the boundary wall (@todo: would be better to attach a group of particles e.g. in a row)
 		GrowthStrategy strategy = GrowthStrategy::DELAUNAY;
+		real_t surfaceTensionMultiplier = real_t(1.0);
 	};
 
 private:
@@ -56,8 +57,18 @@ protected:
 		return edges[i].end();
 	}
 
-	inline real_t getRepulsion([[maybe_unused]] int i, [[maybe_unused]] int j) override {
-		return 1.0; // no repulsion deltas in 3D surfaces yet @todo
+	inline real_t getRepulsion(int i, int j) override {
+		if (specificParams.surfaceTensionMultiplier == 1.0) return 1.0;
+		
+		// If the particles are next-nearest neighbours (i.e. at least one vertex in the intersection of their neighbour sets), apply multiplier
+		for (auto it1 = edges[i].begin(); it1 != edges[i].end(); it1++) {
+			for (auto it2 = edges[j].begin(); it2 != edges[j].end(); it2++) {
+				if (*it1 == *it2) {
+					return specificParams.surfaceTensionMultiplier;
+				}
+			}
+		}
+		return 1.0;
 	}
 	
 	inline real_t getVolume() override {
