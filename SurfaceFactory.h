@@ -17,7 +17,11 @@ namespace SurfaceFactory {
             typename T::Params params;
             params.attractionMagnitude = args.read<real_t>("magnitude", real_t(.025));
             params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", real_t(2.1));
-            params.damping = args.read<real_t>("damping", real_t(.15));
+            if (args.read<bool>("overdamped", false)) {
+                params.damping = 0;
+            } else {
+                params.damping = args.read<real_t>("damping", real_t(.15));
+            }
             params.noise = args.read<real_t>("noise", real_t(.25));
             real_t aniso = args.read<real_t>("anisotropy", real_t(1));
             params.repulsionAnisotropy = Vec3(aniso, aniso, real_t(1.0));
@@ -46,7 +50,11 @@ namespace SurfaceFactory {
             typename T::Params params;
             params.attractionMagnitude = args.read<real_t>("magnitude", real_t(.01));
             params.repulsionMagnitudeFactor = args.read<real_t>("repulsion", real_t(2.1));
-            params.damping = args.read<real_t>("damping", real_t(.5));
+            if (args.read<bool>("overdamped", false)) {
+                params.damping = 0;
+            } else {
+                params.damping = args.read<real_t>("damping", real_t(.5));
+            }
             params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
             params.boundary = std::make_shared<SphereBoundary<2>>(
