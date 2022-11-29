@@ -42,6 +42,35 @@ Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int s
 	}
 }
 
+void Surface3::computeNormals () {
+
+	const int numParticles = int(particles.size());
+	const int numTriangles = int(triangles.size());
+	
+	// reset all to zero
+	normals.clear();
+	Vec3 zero = Vec3::Zero();
+	for (int i = 0; i < numParticles; ++i) {
+		normals.push_back(zero);
+	}
+	
+	#pragma omp parallel for
+	for (int i = 0; i < numTriangles; ++i) {
+		const Vec3& a = particles[triangles[i].X()].position;
+		const Vec3& b = particles[triangles[i].Y()].position;
+		const Vec3& c = particles[triangles[i].Z()].position;
+		Vec3 norm = VecUtils::cross(b-a, c-a);
+		normals[triangles[i].X()] += norm;
+		normals[triangles[i].Y()] += norm;
+		normals[triangles[i].Z()] += norm;
+	}
+	
+	#pragma omp parallel for
+	for (int i = 0; i < numParticles; ++i) {
+		normals[i].normalize();
+	}
+}
+
 void Surface3::addParticle() {
 	switch (specificParams.strategy) {
 	case GrowthStrategy::ON_EDGE:

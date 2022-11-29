@@ -26,16 +26,22 @@ private:
 	// Additional parameters on top of the Surface<3>::Params
 	SpecificParams specificParams;
 
-	// List of triangles by particle/vertex indices
+	// List of triangles
 	std::vector<IVec3> triangles;
+	
+	// List of vertex normals (same length as particles)
+	std::vector<Vec3> normals;
 
 	// Edge map < vertex index -> [ nearest neighbour vertex indices ] >
 	std::vector<std::unordered_set<int>> edges;
 
 protected:
 	
-	inline Vec3 getNormal([[maybe_unused]] int i) override {
-		return Vec3::Zero(); // @todo
+	void computeNormals () override;
+	
+	inline Vec3 getNormal(int i) override {
+		if (i >= (int)normals.size()) return Vec3::Zero();
+		return normals[i];
 	}
 	
 	inline bool areNeighbours(int i, int j) override {
@@ -55,7 +61,24 @@ protected:
 	}
 	
 	inline real_t getVolume() override {
-		return 1.0; // @todo
+		// compute volume enclosed within the surface
+		real_t volume = 0;
+		int triangleCount = int(triangles.size());
+		#pragma omp parallel for reduction(+: volume)
+		for (int i = 0; i < triangleCount; ++i) {
+			const Vec3& a = particles[triangles[i].X()].position;
+			const Vec3& b = particles[triangles[i].Y()].position;
+			const Vec3& c = particles[triangles[i].Z()].position;
+			// compute signed volume of triangle
+			real_t vCBA = c.X() * b.Y() * a.Z();
+			real_t vBCA = b.X() * c.Y() * a.Z();
+			real_t vCAB = c.X() * a.Y() * b.Z();
+			real_t vACB = a.X() * c.Y() * b.Z();
+			real_t vBAC = b.X() * a.Y() * c.Z();
+			real_t vABC = a.X() * b.Y() * c.Z();
+			volume += (-vCBA + vBCA + vCAB - vACB - vBAC + vABC) / real_t(6);
+		}
+		return volume;
 	}
 	
 	inline std::string getTypeHint() override {

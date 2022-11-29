@@ -23,6 +23,8 @@ namespace SurfaceFactory {
                 params.damping = args.read<real_t>("damping", real_t(.15));
             }
             params.noise = args.read<real_t>("noise", real_t(.25));
+            params.pressure = args.read<real_t>("pressure", real_t(0));
+            params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
             real_t aniso = args.read<real_t>("anisotropy", real_t(1));
             params.repulsionAnisotropy = Vec3(aniso, aniso, real_t(1.0));
             std::string boundaryType = args.read<std::string>("boundary", "cylinder");

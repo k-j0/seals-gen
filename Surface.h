@@ -44,6 +44,7 @@ public:
 		real_t repulsionMagnitudeFactor = (real_t)2.1; // * attractionMagnitude
 		real_t damping = (real_t).15;
 		real_t pressure = (real_t)0;
+		real_t targetVolume = real_t(-1); // can be left as -1 to compute from initial volume
 		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
 		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
@@ -72,9 +73,8 @@ protected:
 		std::unique_ptr<Grid<D>> grid;
 	#endif // USE_GRID
 	
-	real_t initialVolume = -1;
-	
 	// Must be implemented - returns the normal vector (pointing outwards) for a given particle
+	virtual void computeNormals() {}
 	virtual Vec<real_t, D> getNormal(int i) = 0;
 
 	// Neighbour interfaces - must be implemented in derived classes
@@ -146,8 +146,11 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 	
 	// compute volume delta since beginning and resulting pressure force magnitude to apply to each particle
 	real_t volume = params.pressure == 0 ? 1 : std::max(real_t(0), getVolume()); // no need to compute volume without a pressure force
-	if (initialVolume < 0) initialVolume = volume;
-	real_t pressureAmount = initialVolume == 0 ? 0 : params.pressure * (initialVolume - volume) / initialVolume; // increased volume: negative pressure; decreased volume: positive pressure
+	if (params.targetVolume < 0) params.targetVolume = volume;
+	real_t pressureAmount = params.targetVolume == 0 ? 0 : params.pressure * (params.targetVolume - volume) / params.targetVolume; // increased volume: negative pressure; decreased volume: positive pressure
+	if (pressureAmount != 0) {
+		computeNormals();
+	}
 
 	// update acceleration values for all particles first without writing to position
 	#pragma omp parallel for
@@ -169,7 +172,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 		}
 		
 		// pressure force
-		if (params.pressure > 0) {
+		if (pressureAmount != 0) {
 			Vec<real_t, D> normal = getNormal(i);
 			normal *= pressureAmount;
 			particles[i].acceleration += normal;

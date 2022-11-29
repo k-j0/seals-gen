@@ -320,6 +320,18 @@ WARNING_POP;
 
 };
 
+namespace VecUtils {
+	/// Cross product (only defined in 3D)
+	template<typename T>
+	inline Vec<T, 3> cross(const Vec<T, 3>& v1, const Vec<T, 3>& v2) {
+		return Vec<T, 3>(
+			v1.Y() * v2.Z() - v2.Y() * v1.Z(),
+			-(v1.X() * v2.Z() - v2.X() * v1.Z()),
+			v1.X() * v2.Y() - v2.X() * v1.Y()
+		);
+	}
+}
+
 
 
 // Common Vec types
