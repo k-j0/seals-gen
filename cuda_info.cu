@@ -1,6 +1,9 @@
 
-#include "cuda_utils.h"
 #include "cuda_info.h"
+
+#include <string>
+#include <cuda.h>
+#include "cuda_utils.h"
 
 std::string getCudaInfo () {
     

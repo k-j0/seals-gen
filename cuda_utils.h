@@ -17,4 +17,7 @@ inline void __cuda_check(cudaError_t code, const char* fn, const char* file, int
 #define CUDA_CHECK(op) __cuda_check((op), #op, __FILE__, __LINE__)
 #define CUDA_CHECK_K __cuda_check(cudaPeekAtLastError(), "kernel", __FILE__, __LINE__)
 
+#else
+#define CUDA_CHECK(op) (op)
+#define CUDA_CHECK_K
 #endif
