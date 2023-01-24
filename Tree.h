@@ -80,7 +80,17 @@ protected:
 	}
 	
 	inline real_t getVolume() override {
-		return 1.0; // @todo; what would the volume be for a tree? I don't think pressure makes any sense here either way.
+		// the "volume" of the tree is just the cumsum of lengths of its branches
+		real_t length = 0.0f;
+		int particleCount = int(particles.size());
+		#pragma omp parallel for reduction(+: length)
+		for (int i = 0; i < particleCount; ++i) {
+			for (auto it = neighbourIndices[i].begin(); it != neighbourIndices[i].end(); it++) {
+				const int& j = *it;
+				length += std::sqrt((particles[i].position - particles[j].position).lengthSqr());
+			}
+		}
+		return length * 0.5f; // half, since we counted each branch twice
 	}
 	
 	inline std::string getTypeHint() override {
