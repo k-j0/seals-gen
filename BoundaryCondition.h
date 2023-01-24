@@ -13,8 +13,11 @@ public:
 	
 	virtual ~BoundaryCondition() {};
 	
+	// Returns whether the boundary condition requires the enclosed surface's volume to proceed
+	virtual bool needsVolume() = 0;
+	
 	// Optional update routine, called before each individual sim step
-	virtual void update() = 0;
+	virtual void update(real_t surfaceVolume) = 0;
 	
 	// Process a particle that is meant to be kept attached to the boundary wall
 	virtual void updateAttachedParticle(Particle<D>* particle, real_t maximumAllowedDisplacement) = 0;

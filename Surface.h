@@ -145,7 +145,9 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 	int numParticles = (int)particles.size();
 	
 	// compute volume delta since beginning and resulting pressure force magnitude to apply to each particle
-	real_t volume = params.pressure == 0 ? 1 : std::max(real_t(0), getVolume()); // no need to compute volume without a pressure force
+	bool boundaryNeedsVolume = !params.boundary ? false : params.boundary->needsVolume();
+	real_t volume = params.pressure == 0 && !boundaryNeedsVolume ? 1 : // no need to compute volume without a pressure force or volume-based boundary growth
+						std::max(real_t(0), getVolume());
 	if (params.targetVolume < 0) params.targetVolume = volume;
 	real_t pressureAmount = params.targetVolume == 0 ? 0 : params.pressure * (params.targetVolume - volume) / params.targetVolume; // increased volume: negative pressure; decreased volume: positive pressure
 	if (pressureAmount != 0) {
@@ -247,7 +249,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 
 	// Update boundary condition
 	if (params.boundary) {
-		params.boundary->update();
+		params.boundary->update(volume);
 	}
 
 	++t;

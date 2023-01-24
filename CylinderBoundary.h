@@ -15,8 +15,12 @@ public:
 
 	CylinderBoundary(real_t radius = 1.0, real_t maxRadius = 1.0, real_t extent = .05, real_t growthRate = 0.0) :
 		radius(radius), maxRadius(maxRadius), extent(extent), growthRate(growthRate) {}
-
-	inline void update() override {
+	
+	inline bool needsVolume () override {
+		return false; // @todo: for now, cylinder boundaries do not implement density-based auto-growth
+	}
+	
+	inline void update([[maybe_unused]] real_t surfaceVolume) override {
 		if (growthRate > 1) {
 			radius *= growthRate;
 			radius = radius > maxRadius ? maxRadius : radius;
