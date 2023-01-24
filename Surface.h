@@ -287,7 +287,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	data.push_back('S'); data.push_back('E'); data.push_back('L');
 	
 	// File version
-	bio::writeSimple<std::uint8_t>(data, 3);
+	bio::writeSimple<std::uint8_t>(data, 4);
 	
 	// Metadata
 	bio::writeSimple<std::uint8_t>(data, D);
@@ -304,6 +304,14 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	bio::writeSimple<real_t>(data, params.dt);
 	bio::writeSimple<std::int32_t>(data, runtimeMs);
 	bio::writeSimple<real_t>(data, getVolume());
+	
+	// Boundary
+	if (params.boundary) {
+		bio::writeSimple<std::int8_t>(data, 1);
+		params.boundary->toBinary(data);
+	} else {
+		bio::writeSimple<std::int8_t>(data, 0);
+	}
 
 	// Core data
 	bio::writeSimple<std::int32_t>(data, (std::int32_t)particles.size());

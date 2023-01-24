@@ -52,5 +52,11 @@ public:
 	inline std::string toJson() override {
 		return "{ 'type': 'cylinder', 'radius': " + std::to_string(radius) + ", 'extent': " + std::to_string(extent) + " }";
 	}
+	
+	inline void toBinary(bio::BufferedBinaryFileOutput<>& data) override {
+		bio::writeSimple<std::int8_t>(data, 1); // cylinder type id = 1
+		bio::writeSimple<float>(data, radius);
+		bio::writeSimple<float>(data, extent);
+	}
 
 };
