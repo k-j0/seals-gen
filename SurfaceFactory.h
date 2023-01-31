@@ -83,6 +83,7 @@ namespace SurfaceFactory {
             specificParams.newGrowthDistance = args.read<real_t>("growth-distance", real_t(.1));
             specificParams.minBranchLength = args.read<int>("min-branch-len", 3);
             specificParams.maxBranchLength = args.read<int>("max-branch-len", 10);
+            specificParams.growthDensitySamples = args.read<int>("growth-density-samples", 1);
             return specificParams;
         }
         

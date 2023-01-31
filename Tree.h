@@ -20,6 +20,7 @@ class Tree : public Surface<D, std::unordered_set<int>::const_iterator> {
 	using Base::rand01;
 	using Base::rng;
 	using Base::params;
+    using Base::getNearbyParticleCount;
 	
 public:
 	
@@ -29,6 +30,7 @@ public:
 		real_t newGrowthDistance = real_t(.1); // distance from old particles that new growth happens at, as a fraction of the attraction magnitude
 		int minBranchLength = 3;
 		int maxBranchLength = 10;
+        int growthDensitySamples = 1; // if > 1, will pick the least locally dense out of growthDensitySamples random samples as the node to grow from
 	};
 	
 private:
@@ -136,9 +138,26 @@ void Tree<D>::addParticle() {
     
     // O(1)
     
-    // pick a random 'young' particle to grow from
-    int youngIdx = int(rand01() * youngIndices.size());
-    int a = youngIndices[youngIdx];
+    // pick the least locally dense 'young' particles to potentially grow from out of n sampled
+    int youngIdx = -1;
+    int a = -1;
+    int localDensity = -1;
+    for (int i = 0; i < specificParams.growthDensitySamples; ++i) {
+        int potentialYoungIdx = int(rand01() * youngIndices.size());
+        int potentialParticle = youngIndices[potentialYoungIdx];
+        if (specificParams.growthDensitySamples == 1) { // don't bother sampling local densities if not needed
+            youngIdx = potentialYoungIdx;
+            a = potentialParticle;
+            break;
+        }
+        real_t potentialLocalDensity = getNearbyParticleCount(potentialParticle);
+        if (localDensity < 0 || potentialLocalDensity < localDensity) {
+            youngIdx = potentialYoungIdx;
+            a = potentialParticle;
+            localDensity = potentialLocalDensity;
+        }
+    }
+    assert(a >= 0);
     
     // pick a random orientation for the young particle
     auto dir = Vec<real_t, D>::RandomUnit(rng);

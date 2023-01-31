@@ -115,6 +115,26 @@ protected:
         // particles that are n times as far from their neighbours as usual should repulse n times as much (lerp'ed to 1)
         return params.adaptiveRepulsion * avgDistance / params.attractionMagnitude + (real_t(1) - params.adaptiveRepulsion);
     }
+    
+    // Returns an estimate of the density locally around particle i
+    // Counts the number of particles within circle of radius attraction magnitude
+    int getNearbyParticleCount (int i) {
+        int total = 0;
+    #ifdef USE_GRID
+		std::array<std::vector<int>*, powConstexpr(3, D)> cells;
+		grid->sample(particles[i].position, cells);
+		for (const std::vector<int>* const cell : cells) if (cell) for (const int& j : *cell) {
+	#else // USE_GRID
+		for (std::size_t j = 0; j < particles.size(); ++j) {
+	#endif // !USE_GRID
+			if (i == j) continue; // same particle
+            Vec<real_t, D> towards = particles[j].position - particles[i].position;
+            if (towards.lengthSqr() < params.attractionMagnitude * params.attractionMagnitude) {
+                ++total;
+            }
+        }
+        return total;
+    }
 
 public:
 	
