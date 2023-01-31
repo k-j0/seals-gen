@@ -48,6 +48,7 @@ public:
 		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
         real_t adaptiveRepulsion = real_t(0); // 0..1
+        real_t rigidity = real_t(0); // 0..1
 		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
 		real_t dt = (real_t).15;
 
@@ -188,6 +189,11 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 			params.boundary->updateAttachedParticle(&particles[i], params.attractionMagnitude * std::max((real_t)1.0, params.repulsionMagnitudeFactor));
 			continue;
 		}
+        
+        // fully rigid particles should no longer move at all
+        if (particles[i].flexibility <= 0.0) {
+            continue;
+        }
 
 		// dampen acceleration
 		particles[i].acceleration *= params.damping * params.damping;
@@ -255,12 +261,17 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 		particles[i].velocity += particles[i].acceleration * params.dt;
 
 		// apply velocity
-		particles[i].position += particles[i].velocity * params.dt;
+		particles[i].position += particles[i].velocity * params.dt * particles[i].flexibility;
 
 		// apply hard boundary
 		if (params.boundary) {
 			params.boundary->hard(particles[i].position);
 		}
+        
+        particles[i].flexibility *= (real_t(1.0) - params.rigidity);
+        if (particles[i].flexibility < real_t(0)) {
+            particles[i].flexibility = real_t(0);
+        }
 	}
 
 	// Update grid

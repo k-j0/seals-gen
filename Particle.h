@@ -17,6 +17,8 @@ struct Particle {
 	real_t noise = 0.0; // -1..1 random noise
 
 	bool attached = false; // If true, the specific particle should be considered attached to the nearest boundary wall
+    
+    real_t flexibility = 1.0; // 0..1
 
 	/// Helper factory to construct new particles
 	static inline Particle FromPosition(Vec<real_t, D> pos) {
