@@ -27,6 +27,7 @@ namespace SurfaceFactory {
             params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
             real_t aniso = args.read<real_t>("anisotropy", real_t(1));
             params.repulsionAnisotropy = Vec3(aniso, aniso, real_t(1.0));
+            params.adaptiveRepulsion = args.read<real_t>("adaptive-repulsion", real_t(0));
             std::string boundaryType = args.read<std::string>("boundary", "cylinder");
             if (boundaryType.compare("cylinder") == 0) {
                 params.boundary = std::make_shared<CylinderBoundary>(
@@ -60,6 +61,7 @@ namespace SurfaceFactory {
             }
             params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
+            params.adaptiveRepulsion = args.read<real_t>("adaptive-repulsion", real_t(0));
             params.boundary = std::make_shared<SphereBoundary<2>>(
                 args.read<real_t>("boundary-radius", real_t(.5)),
                 args.read<real_t>("boundary-max-radius", real_t(.5)),

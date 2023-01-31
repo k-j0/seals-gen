@@ -47,6 +47,7 @@ public:
 		real_t targetVolume = real_t(-1); // can be left as -1 to compute from initial volume
 		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
+        real_t adaptiveRepulsion = real_t(0); // 0..1
 		std::shared_ptr<BoundaryCondition<D>> boundary = nullptr;
 		real_t dt = (real_t).15;
 
@@ -83,13 +84,36 @@ protected:
 	virtual neighbour_iterator_t endNeighbours(int i) = 0;
 
 	// Must be implemented in derived classes - returns a repulsion multiplier for two particles i and j
-	virtual real_t getRepulsion(int i, int j) = 0;
+	virtual real_t getSurfaceTension(int i, int j) = 0;
 	
 	// Must be implemented in derived classes; returns the full volume/area of the surface
 	virtual real_t getVolume() = 0;
 	
 	// Must be implemented in derived classes; returns a hint to indicate the type of surface this is, which will be inserted in output files
 	virtual std::string getTypeHint() = 0;
+    
+    // Returns a constant factor corresponding to how much particle i should repulse non-neighbours
+    real_t getRepulsion(int i) {
+        if (params.adaptiveRepulsion <= real_t(0)) {
+            return real_t(1.0);
+        }
+        
+        // Find average distance to neighbours
+        int neighbourCount = 0;
+        real_t totalDistance = real_t(0.0);
+        neighbour_iterator_t begin = beginNeighbours(i);
+        neighbour_iterator_t end = endNeighbours(i);
+        for (auto it = begin; it != end; it++) {
+			Vec<real_t, D> towards = particles[*it].position - particles[i].position;
+            totalDistance += std::sqrt(towards.lengthSqr());
+            ++neighbourCount;
+        }
+        if (neighbourCount <= 0) return real_t(1.0);
+        real_t avgDistance = totalDistance / neighbourCount;
+        
+        // particles that are n times as far from their neighbours as usual should repulse n times as much (lerp'ed to 1)
+        return params.adaptiveRepulsion * avgDistance / params.attractionMagnitude + (real_t(1) - params.adaptiveRepulsion);
+    }
 
 public:
 	
@@ -193,7 +217,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 			// repel if close enough
 			Vec<real_t, D> towards = particles[j].position - particles[i].position;
 			real_t noise = (1 + particles[i].noise * params.noise);
-			real_t repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getRepulsion(i, j);
+			real_t repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getSurfaceTension(i, j) * getRepulsion(j);
 			real_t d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();

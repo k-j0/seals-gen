@@ -50,7 +50,7 @@ protected:
 		return neighbourIndices[i].end();
 	}
 
-	inline real_t getRepulsion(int i, int j) override {
+	inline real_t getSurfaceTension(int i, int j) override {
 		if (specificParams.surfaceTensionMultiplier == 1.0) return 1.0;
 
 		// If the particles are next-nearest neighbours, apply multiplier

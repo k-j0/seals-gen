@@ -57,7 +57,7 @@ protected:
 		return edges[i].end();
 	}
 
-	inline real_t getRepulsion(int i, int j) override {
+	inline real_t getSurfaceTension(int i, int j) override {
 		if (specificParams.surfaceTensionMultiplier == 1.0) return 1.0;
 		
 		// If the particles are next-nearest neighbours (i.e. at least one vertex in the intersection of their neighbour sets), apply multiplier

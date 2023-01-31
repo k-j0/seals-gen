@@ -75,7 +75,7 @@ protected:
 		return neighbourIndices[i].end();
 	}
 	
-	inline real_t getRepulsion([[maybe_unused]] int i, [[maybe_unused]] int j) override {
+	inline real_t getSurfaceTension([[maybe_unused]] int i, [[maybe_unused]] int j) override {
 		return 1.0; // no repulsion deltas (surface tension) in trees yet @todo
 	}
 	
