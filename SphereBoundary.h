@@ -22,11 +22,13 @@ class SphereBoundary : public BoundaryCondition<D> {
 	real_t growthRate;
 	
 	real_t targetVolumeFraction;
+    
+    bool withOffset = false;
 	
 public:
 	
-	SphereBoundary(real_t radius = 1.0, real_t maxRadius = 1.0, real_t extent = .05, real_t growthRate = 1.0, real_t targetVolumeFraction = 0.0) :
-		radius(radius), maxRadius(maxRadius), extent(extent), growthRate(growthRate), targetVolumeFraction(targetVolumeFraction) {}
+	SphereBoundary(real_t radius = 1.0, real_t maxRadius = 1.0, real_t extent = .05, real_t growthRate = 1.0, real_t targetVolumeFraction = 0.0, bool withOffset = false) :
+		radius(radius), maxRadius(maxRadius), extent(extent), growthRate(growthRate), targetVolumeFraction(targetVolumeFraction), withOffset(withOffset) {}
 	
 	inline bool needsVolume () override {
 		return targetVolumeFraction > 0;
@@ -47,10 +49,25 @@ public:
 		}
 	}
 	
-	void updateAttachedParticle(Particle<D>* particle, real_t maximumAllowedDisplacement) override {
-		Vec<real_t, D> target = particle->position.normalized();
-		target *= radius;
-		particle->position.moveTowards(target, maximumAllowedDisplacement);
+	void updateAttachedParticles(std::vector<Particle<D>>& particles, real_t maximumAllowedDisplacement) override {
+        Particle<D>* particle = &particles[0];
+        if (particle->attached) {
+            if (withOffset) {
+                // move the whole set of particles relative to the first so that the leftmost point on X on the boundary is stuck to the first particle, no matter where it goes
+                Vec<real_t, D> offset = -particle->position;
+                offset.setX(offset.X() - radius);
+                int numParticles = int(particles.size());
+                #pragma omp parallel for
+                for (int i = 0; i < numParticles; ++i) {
+                    particles[i].position += offset;
+                }
+            } else {
+                // move the particle towards the leftmost point on X on the boudnary
+                Vec<real_t, D> target = Vec<real_t, D>::Zero();
+                target.setX(-radius);
+                particle->position.moveTowards(target, maximumAllowedDisplacement);
+            }
+        }
 	}
 	
 	inline Vec<real_t, D> force(const Vec<real_t, D>& position) override {
@@ -77,6 +94,7 @@ public:
 		bio::writeSimple<std::int8_t>(data, 0); // sphere type id = 0
 		bio::writeSimple<float>(data, radius);
 		bio::writeSimple<float>(data, extent);
+        bio::writeSimple<bool>(data, withOffset);
 	}
 	
 };

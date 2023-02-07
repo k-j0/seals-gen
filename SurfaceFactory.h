@@ -43,7 +43,8 @@ namespace SurfaceFactory {
                     args.read<real_t>("boundary-max-radius", real_t(.15)),
                     args.read<real_t>("boundary-extent", real_t(.05)),
                     args.read<real_t>("boundary-growth", real_t(0)),
-                    args.read<real_t>("boundary-target-density", real_t(0))
+                    args.read<real_t>("boundary-target-density", real_t(0)),
+                    args.read<bool>("boundary-offset", false)
                 );
             }
             params.dt = args.read<real_t>("dt", real_t(.15));
@@ -69,7 +70,8 @@ namespace SurfaceFactory {
                 args.read<real_t>("boundary-max-radius", real_t(.5)),
                 args.read<real_t>("boundary-extent", real_t(.05)),
                 args.read<real_t>("boundary-growth", real_t(0)),
-                args.read<real_t>("boundary-target-density", real_t(0))
+                args.read<real_t>("boundary-target-density", real_t(0)),
+                args.read<bool>("boundary-offset", false)
             );
             params.dt = args.read<real_t>("dt", real_t(0.5));
             return params;

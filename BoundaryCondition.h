@@ -20,7 +20,7 @@ public:
 	virtual void update(real_t surfaceVolume) = 0;
 	
 	// Process a particle that is meant to be kept attached to the boundary wall
-	virtual void updateAttachedParticle(Particle<D>* particle, real_t maximumAllowedDisplacement) = 0;
+	virtual void updateAttachedParticles(std::vector<Particle<D>>& particles, real_t maximumAllowedDisplacement) = 0;
 	
 	// Returns the acceleration vector pushing the particle away from the boundary, if applicable
 	virtual Vec<real_t, D> force(const Vec<real_t, D>& position) = 0;

@@ -27,10 +27,13 @@ public:
 		}
 	}
 
-	void updateAttachedParticle(Particle<3>* particle, real_t maximumAllowedDisplacement) override {
-		Vec<real_t, 2> target = particle->position.XY().normalized();
-		target *= radius;
-		particle->position.moveTowards(Vec3(target.X(), target.Y(), particle->position.Z()), maximumAllowedDisplacement);
+	void updateAttachedParticles(std::vector<Particle<3>>& particles, real_t maximumAllowedDisplacement) override {
+        Particle<3>* particle = &particles[0];
+        if (particle->attached) {
+            Vec<real_t, 2> target = particle->position.XY().normalized();
+            target *= radius;
+            particle->position.moveTowards(Vec3(target.X(), target.Y(), particle->position.Z()), maximumAllowedDisplacement);
+        }
 	}
 
 	inline Vec3 force(const Vec3& position) override {

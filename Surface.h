@@ -198,20 +198,28 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 	if (pressureAmount != 0) {
 		computeNormals();
 	}
+    
+#ifndef NDEBUG
+    #pragma omp parallel for
+    for (int i = 1; i < numParticles; ++i) {
+        if (particles[i].attached) {
+            printf("Particle %d is attached to the boundary - ONLY particle 0 should currently be attached, otherwise updateAttachedParticles implementations need to be updated!", i);
+            exit(1);
+        }
+    }
+#endif
+    
+	// particles attached to the wall should move towards their slot on the wall
+    if (params.boundary) {
+        params.boundary->updateAttachedParticles(particles, params.attractionMagnitude * std::max((real_t)1.0, params.repulsionMagnitudeFactor));
+    }
 
 	// update acceleration values for all particles first without writing to position
 	#pragma omp parallel for
 	for (int i = 0; i < numParticles; ++i) {
-
-		// particles attached to the wall should move towards their slot on the wall
-		if (particles[i].attached) {
-			assert(params.boundary);
-			params.boundary->updateAttachedParticle(&particles[i], params.attractionMagnitude * std::max((real_t)1.0, params.repulsionMagnitudeFactor));
-			continue;
-		}
         
-        // fully rigid particles should no longer move at all
-        if (particles[i].flexibility <= 0.0) {
+        // attached & fully rigid particles should no longer move at all
+        if (particles[i].attached || particles[i].flexibility <= 0.0) {
             continue;
         }
 
@@ -344,7 +352,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	data.push_back('S'); data.push_back('E'); data.push_back('L');
 	
 	// File version
-	bio::writeSimple<std::uint8_t>(data, 4);
+	bio::writeSimple<std::uint8_t>(data, 5);
 	
 	// Metadata
 	bio::writeSimple<std::uint8_t>(data, D);

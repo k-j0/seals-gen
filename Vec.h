@@ -174,6 +174,12 @@ WARNING_POP;
 		for (int i = 0; i < N; ++i) ret.set(i, get(i) - v[i]);
 		return ret;
 	}
+    
+    inline Vec<T, N> operator-() const {
+        Vec<T, N> ret;
+        for (int i = 0; i < N; ++i) ret.set(i, -get(i));
+        return ret;
+    }
 
 	inline Vec<T, N> operator-=(const Vec<T, N>& v) {
 		Vec<T, N> n = (*this) - v;
