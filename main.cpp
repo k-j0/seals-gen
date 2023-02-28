@@ -26,8 +26,9 @@ int main(int argc, char** argv) {
 	std::string outFile;
 	{
 		Arguments args(argc, argv);
-		surface = SurfaceFactory::build(args);
-		iterations = args.read<int>("iter", 600);
+        bool sealPreset = args.read<bool>("seals", false);
+		surface = SurfaceFactory::build(args, sealPreset);
+		iterations = args.read<int>("iter", sealPreset ? 20000 : 600);
 		particleGrowth = args.read<int>("growth", 5);
 		writeJson = args.read<bool>("json", false);
 		std::string allArgs = "";
