@@ -26,7 +26,7 @@ class SurfaceBase {
 public:
 	virtual ~SurfaceBase() { }
 	virtual void addParticle() = 0;
-	virtual void update() = 0;
+	virtual void update(real_t progression) = 0;
 	virtual std::string toJson(int runtimeMs) = 0;
 	virtual void toBinary(int runtimeMs, Bytes& data) = 0;
 };
@@ -45,6 +45,7 @@ public:
 		real_t damping = (real_t).15;
 		real_t pressure = (real_t)0;
 		real_t targetVolume = real_t(-1); // can be left as -1 to compute from initial volume
+        real_t finalTargetVolume = real_t(1);
 		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
         real_t adaptiveRepulsion = real_t(0); // 0..1
@@ -143,7 +144,7 @@ public:
 
 	virtual ~Surface() override { }
 
-	void update () override;
+	void update (real_t progression) override;
 
 	/// Export to JSON, to be loaded into WebGL viewer
 	std::string toJson(int runtimeMs) final override;
@@ -185,7 +186,7 @@ Surface<D, neighbour_iterator_t, Bytes>::Surface(Surface<D, neighbour_iterator_t
 
 
 template<int D, typename neighbour_iterator_t, typename Bytes>
-void Surface<D, neighbour_iterator_t, Bytes>::update() {
+void Surface<D, neighbour_iterator_t, Bytes>::update(real_t progression) {
 
 	int numParticles = (int)particles.size();
 	
@@ -194,7 +195,8 @@ void Surface<D, neighbour_iterator_t, Bytes>::update() {
 	real_t volume = params.pressure == 0 && !boundaryNeedsVolume ? 1 : // no need to compute volume without a pressure force or volume-based boundary growth
 						std::max(real_t(0), getVolume());
 	if (params.targetVolume < 0) params.targetVolume = volume;
-	real_t pressureAmount = params.targetVolume == 0 ? 0 : params.pressure * (params.targetVolume - volume) / params.targetVolume; // increased volume: negative pressure; decreased volume: positive pressure
+    real_t actualTargetVolume = (params.finalTargetVolume * params.targetVolume) * progression + params.targetVolume * (real_t(1) - progression); // lerp from original volume to final target volume * original volume
+	real_t pressureAmount = actualTargetVolume == 0 ? 0 : params.pressure * (actualTargetVolume - volume) / actualTargetVolume; // increased volume: negative pressure; decreased volume: positive pressure
 	if (pressureAmount != 0) {
 		computeNormals();
 	}

@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 				surface->addParticle();
 			}
 			#ifndef NO_UPDATE
-				surface->update();
+				surface->update(real_t(t)/real_t(iterations));
 				
 				// recurrent outputs (console + snapshots)
 				if (t % progressCheck == 0) { // 255 hits over the full generation (no matter iteration count, unless lower than 255)
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 		#ifndef NO_UPDATE
 			// settle (iterations without new particles)
 			for (int t = 0; t < 50; ++t) {
-				surface->update();
+				surface->update(real_t(1));
 			}
 		#endif
 	}

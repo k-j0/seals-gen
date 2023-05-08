@@ -25,6 +25,7 @@ namespace SurfaceFactory {
             params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
             params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
+            params.finalTargetVolume = args.read<real_t>("final-target-volume", real_t(1));
             real_t aniso = args.read<real_t>("anisotropy", real_t(1));
             params.repulsionAnisotropy = Vec3(aniso, aniso, real_t(1.0));
             params.adaptiveRepulsion = args.read<real_t>("adaptive-repulsion", real_t(0));
@@ -63,16 +64,18 @@ namespace SurfaceFactory {
             }
             params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
+            params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
+            params.finalTargetVolume = args.read<real_t>("final-target-volume", real_t(1));
             params.adaptiveRepulsion = args.read<real_t>("adaptive-repulsion", real_t(sealPreset ? .15 : 0));
             params.rigidity = args.read<real_t>("rigidity", real_t(sealPreset ? .00025 : 0));
-            params.boundary = std::make_shared<SphereBoundary<2>>(
+            params.boundary = args.read<std::string>("boundary", "circle").compare("circle") == 0 ? std::make_shared<SphereBoundary<2>>(
                 args.read<real_t>("boundary-radius", real_t(sealPreset ? .05 : .5)),
                 args.read<real_t>("boundary-max-radius", real_t(.5)),
                 args.read<real_t>("boundary-extent", real_t(.05)),
                 args.read<real_t>("boundary-growth", real_t(0)),
                 args.read<real_t>("boundary-target-density", real_t(sealPreset ? 50 : 0)),
                 args.read<bool>("boundary-offset", sealPreset)
-            );
+            ) : nullptr;
             params.dt = args.read<real_t>("dt", real_t(0.5));
             return params;
         }
