@@ -200,7 +200,7 @@ void Tree<D>::specificJson(std::string& json) {
 		json += "\t\t\t'position': " + particles[i].position.toString() + ",\n";
 		json += "\t\t\t'velocity': " + particles[i].velocity.toString() + ",\n";
 		json += "\t\t\t'acceleration': " + particles[i].acceleration.toString() + ",\n";
-		json += "\t\t\t'noise': " + std::to_string(particles[i].noise) + ",\n";
+		json += "\t\t\t'noise': 0,\n";
         json += "\t\t\t'neighbours': [\n";
         for (auto it = neighbourIndices[i].begin(); it != neighbourIndices[i].end(); it++) {
             json += "\t\t\t\t" + std::to_string(*it) + ",\n";

@@ -49,7 +49,7 @@ void Surface2::specificJson(std::string& json) {
 		json += "\t\t\t'position': " + particles[i].position.toString() + ",\n";
 		json += "\t\t\t'velocity': " + particles[i].velocity.toString() + ",\n";
 		json += "\t\t\t'acceleration': " + particles[i].acceleration.toString() + ",\n";
-		json += "\t\t\t'noise': " + std::to_string(particles[i].noise) + ",\n";
+		json += "\t\t\t'noise': 0,\n";
 		json += "\t\t\t'next': " + std::to_string(neighbourIndices[i][1]) + ",\n";
 		json += "\t\t\t'previous': " + std::to_string(neighbourIndices[i][0]) + "\n";
 		json += "\t\t}";

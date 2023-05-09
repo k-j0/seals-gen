@@ -13,9 +13,7 @@ struct Particle {
 	Vec<real_t, D> position; // Position in n-dimensional space
 
 	Vec3 spherical; // Position on unit sphere (for spherical Delaunay triangulation)
-
-	real_t noise = 0.0; // -1..1 random noise
-
+    
 	bool attached = false; // If true, the specific particle should be considered attached to the nearest boundary wall
     
     real_t flexibility = 1.0; // 0..1

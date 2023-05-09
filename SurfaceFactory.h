@@ -22,7 +22,6 @@ namespace SurfaceFactory {
             } else {
                 params.damping = args.read<real_t>("damping", real_t(.15));
             }
-            params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
             params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
             params.finalTargetVolume = args.read<real_t>("final-target-volume", real_t(1));
@@ -62,7 +61,6 @@ namespace SurfaceFactory {
             } else {
                 params.damping = args.read<real_t>("damping", real_t(.5));
             }
-            params.noise = args.read<real_t>("noise", real_t(.25));
             params.pressure = args.read<real_t>("pressure", real_t(0));
             params.targetVolume = args.read<real_t>("target-volume", real_t(-1));
             params.finalTargetVolume = args.read<real_t>("final-target-volume", real_t(1));

@@ -18,7 +18,6 @@ Surface3::Surface3(Surface3::Params params, SpecificParams specificParams, int s
 	triangles = icosahedron->indices;
 	for (std::size_t i = 0; i < particles.size(); ++i) {
 		particles[i] = Particle<3>::FromPosition(icosahedron->vertices[i]);
-		particles[i].noise = rand01() * 2 - 1;
 		// initial particles share spherical coords with their original positions (likely never the case later)
 		particles[i].spherical = particles[i].position.normalized();
 	}
@@ -105,7 +104,7 @@ void Surface3::specificJson(std::string& json) {
 		json += "\t\t\t'velocity': " + particles[i].velocity.toString() + ",\n";
 		json += "\t\t\t'acceleration': " + particles[i].acceleration.toString() + ",\n";
 		json += "\t\t\t'spherical': " + particles[i].spherical.toString() + ",\n";
-		json += "\t\t\t'noise': " + std::to_string(particles[i].noise) + "\n";
+		json += "\t\t\t'noise': 0,\n";
 		json += "\t\t}";
 		if (i < particles.size() - 1) json += ",";
 		json += "\n";
@@ -156,7 +155,6 @@ void Surface3::addParticleEdge() {
 	assert(b > -1);
 	int c = (int)particles.size();
 	particles.push_back(Particle<3>::FromPosition(Vec3::Lerp(particles[a].position, particles[b].position, 0.5)));
-	particles.back().noise = rand01() * 2 - 1;
 
 	// update edge map
 	edges.push_back(std::unordered_set<int>());
@@ -214,7 +212,6 @@ void Surface3::addParticleDelaunay() {
 	sd::SphericalDelaunay(particles, triangles, edges);
 
 	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
-	p.noise = rand01() * 2 - 1;
 #ifndef NO_UPDATE
 	for (int neighbour : edges[particles.size() - 1]) {
 		p.position += particles[neighbour].position;
@@ -266,7 +263,6 @@ void Surface3::addParticleEdgeDelaunay() {
 	sd::SphericalDelaunay(particles, triangles, edges);
 
 	// set other fields of p to averages amongst spherical neighbours for now (will update with everything else later on)
-	p.noise = rand01() * 2 - 1;
 #ifndef NO_UPDATE
 	for (int neighbour : edges[particles.size() - 1]) {
 		p.position += particles[neighbour].position;

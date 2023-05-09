@@ -46,7 +46,6 @@ public:
 		real_t pressure = (real_t)0;
 		real_t targetVolume = real_t(-1); // can be left as -1 to compute from initial volume
         real_t finalTargetVolume = real_t(1);
-		real_t noise = (real_t).25;
 		Vec<real_t, D> repulsionAnisotropy = Vec<real_t, D>::One();
         real_t adaptiveRepulsion = real_t(0); // 0..1
         real_t rigidity = real_t(0); // 0..1
@@ -252,9 +251,8 @@ void Surface<D, neighbour_iterator_t, Bytes>::update(real_t progression) {
 
 			// repel if close enough
 			Vec<real_t, D> towards = particles[j].position - particles[i].position;
-			real_t noise = (1 + particles[i].noise * params.noise);
 			real_t repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getSurfaceTension(i, j) * getRepulsion(j);
-			real_t d2 = towards.lengthSqr() * noise * noise; // d^2 to skip sqrt most of the time
+			real_t d2 = towards.lengthSqr(); // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
 				towards *= std::sqrt(d2) - repulsionLen;
@@ -334,7 +332,7 @@ std::string Surface<D, neighbour_iterator_t, Bytes>::toJson(int runtimeMs) {
 		"\t'attractionMagnitude': " + std::to_string(params.attractionMagnitude) + ",\n"
 		"\t'repulsionMagnitudeFactor': " + std::to_string(params.repulsionMagnitudeFactor) + ",\n"
 		"\t'damping': " + std::to_string(params.damping) + ",\n"
-		"\t'noise': " + std::to_string(params.noise) + ",\n"
+		"\t'noise': 0,\n"
 		"\t'repulsionAnisotropy': " + params.repulsionAnisotropy.toString() + ",\n"
 		"\t'boundary': " + (params.boundary ? params.boundary->toJson() : "null") + ",\n"
 		"\t'dt': " + std::to_string(params.dt) + ",\n"
@@ -366,7 +364,7 @@ void Surface<D, neighbour_iterator_t, Bytes>::toBinary(int runtimeMs, Bytes& dat
 	bio::writeSimple<real_t>(data, params.attractionMagnitude);
 	bio::writeSimple<real_t>(data, params.repulsionMagnitudeFactor);
 	bio::writeSimple<real_t>(data, params.damping);
-	bio::writeSimple<real_t>(data, params.noise);
+	bio::writeSimple<real_t>(data, 0); // used to be for noise, not needed anymore
 	bio::writeVec(data, params.repulsionAnisotropy);
 	bio::writeSimple<real_t>(data, params.dt);
 	bio::writeSimple<std::int32_t>(data, runtimeMs);
