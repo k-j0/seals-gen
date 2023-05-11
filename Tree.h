@@ -150,7 +150,7 @@ void Tree<D>::addParticle() {
             a = potentialParticle;
             break;
         }
-        real_t potentialLocalDensity = getNearbyParticleCount(potentialParticle);
+        int potentialLocalDensity = getNearbyParticleCount(potentialParticle);
         if (localDensity < 0 || potentialLocalDensity < localDensity) {
             youngIdx = potentialYoungIdx;
             a = potentialParticle;

@@ -36,11 +36,11 @@ public:
 	
 	inline void update(real_t surfaceVolume) override {
 		if (targetVolumeFraction > 0) {
-			real_t volume = M_PI * radius * radius;
+			real_t volume = real_t(M_PI * radius * radius);
 			real_t currentVolumeFraction = surfaceVolume / volume;
 			if (currentVolumeFraction > targetVolumeFraction) {
 				// grow to accomodate the inner volume - never shrink
-				radius = std::sqrt(surfaceVolume / (targetVolumeFraction * M_PI)); // solve for the radius in reverse, swapping out currentVolumeFraction for targetVolumeFraction
+				radius = std::sqrt(real_t(surfaceVolume / (targetVolumeFraction * M_PI))); // solve for the radius in reverse, swapping out currentVolumeFraction for targetVolumeFraction
 				radius = radius > maxRadius ? maxRadius : radius;
 			}
 		} else if (growthRate > 1) {

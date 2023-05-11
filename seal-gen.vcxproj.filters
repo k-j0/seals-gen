@@ -110,5 +110,11 @@
     <ClInclude Include="Tree.h">
       <Filter>Header Files\surface</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

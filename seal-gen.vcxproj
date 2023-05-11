@@ -159,6 +159,8 @@
     <ClInclude Include="Arguments.h" />
     <ClInclude Include="BinaryIO.h" />
     <ClInclude Include="BoundaryCondition.h" />
+    <ClInclude Include="cuda_info.h" />
+    <ClInclude Include="cuda_utils.h" />
     <ClInclude Include="CylinderBoundary.h" />
     <ClInclude Include="delaunator.h" />
     <ClInclude Include="Grid.h" />
