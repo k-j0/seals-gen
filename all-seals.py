@@ -2,7 +2,7 @@
 import subprocess
 
 def run (seed):
-    subprocess.call(['./seals', '-seals', '-seed', str(seed)])
+    subprocess.call(['./seals', '-seals', '-rep-max-neighbour', '-seed', str(seed)])
 
 max = 100
 for i in range(1, max+1):

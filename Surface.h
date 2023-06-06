@@ -42,6 +42,7 @@ public:
 
 		real_t attractionMagnitude = (real_t).025;
 		real_t repulsionMagnitudeFactor = (real_t)2.1; // * attractionMagnitude
+        bool repelByMaxNeighbourDist = false; // turn to true for simplified repulsion setup for MT model - this effectively disables adaptiveRepulsion
 		real_t damping = (real_t).15;
 		real_t pressure = (real_t)0;
 		real_t targetVolume = real_t(-1); // can be left as -1 to compute from initial volume
@@ -114,6 +115,21 @@ protected:
         
         // particles that are n times as far from their neighbours as usual should repulse n times as much (lerp'ed to 1)
         return params.adaptiveRepulsion * avgDistance / params.attractionMagnitude + (real_t(1) - params.adaptiveRepulsion);
+    }
+    
+    // Returns the maximum distance to a neighbour node
+    real_t getMaxNeighbourDist(int i) {
+        real_t maxDistance = real_t(0.0);
+        neighbour_iterator_t begin = beginNeighbours(i);
+        neighbour_iterator_t end = endNeighbours(i);
+        for (auto it = begin; it != end; it++) {
+            Vec<real_t, D> towards = particles[*it].position - particles[i].position;
+            real_t distance = std::sqrt(towards.lengthSqr());
+            if (distance > maxDistance) {
+                maxDistance = distance;
+            }
+        }
+        return maxDistance;
     }
     
     // Returns an estimate of the density locally around particle i
@@ -251,7 +267,10 @@ void Surface<D, neighbour_iterator_t, Bytes>::update(real_t progression) {
 
 			// repel if close enough
 			Vec<real_t, D> towards = particles[j].position - particles[i].position;
-			real_t repulsionLen = params.attractionMagnitude * params.repulsionMagnitudeFactor * getSurfaceTension(i, j) * getRepulsion(j);
+			real_t repulsionLen = params.repelByMaxNeighbourDist ?
+                std::max(getMaxNeighbourDist(j), params.attractionMagnitude * params.repulsionMagnitudeFactor)
+            :
+                params.attractionMagnitude * params.repulsionMagnitudeFactor * getSurfaceTension(i, j) * getRepulsion(j);
 			real_t d2 = towards.lengthSqr(); // d^2 to skip sqrt most of the time
 			if (d2 < repulsionLen * repulsionLen) {
 				towards.normalize();
