@@ -32,6 +32,8 @@ public:
 		int maxBranchLength = 10;
         int growthDensitySamples = 1; // if > 1, will pick the least locally dense out of growthDensitySamples random samples as the node to grow from
 	};
+    
+    inline bool isTree() override { return true; }
 	
 private:
 	
@@ -58,7 +60,7 @@ private:
 		// if we get here, the only neighbour for the node is the node we're coming from, i.e. no more nodes to explore
 		return 0;
 	}
-	
+    
 protected:
 	
 	inline Vec<real_t, D> getNormal([[maybe_unused]] int i) override {
@@ -108,6 +110,11 @@ public:
 	void specificJson(std::string& json) override;
 	
 	void specificBinary(bio::BufferedBinaryFileOutput<>& data) override;
+    
+    void backboneDimensionSamples (bio::BufferedBinaryFileOutput<>& data);
+    
+private:
+    void backboneDimensionSample (bio::BufferedBinaryFileOutput<>& data, int node, int comingFrom, int originalNode, real_t geodesicDistance);
 	
 };
 
@@ -223,4 +230,24 @@ void Tree<D>::specificBinary(bio::BufferedBinaryFileOutput<>& data) {
         bio::writeCollection(data, neighbourIndices[i]);
     }
 	bio::writeCollection(data, youngIndices);
+}
+
+template<int D>
+void Tree<D>::backboneDimensionSamples (bio::BufferedBinaryFileOutput<>& data) {
+    for (std::size_t i = 0, sz = particles.size(); i < sz; ++i) {
+        backboneDimensionSample(data, i, -1, i, real_t(0));
+    }
+}
+
+template<int D>
+void Tree<D>::backboneDimensionSample (bio::BufferedBinaryFileOutput<>& data, int node, int comingFrom, int originalNode, real_t geodesicDistance) {
+    for (auto it = beginNeighbours(node), end = endNeighbours(node); it != end; it++) {
+        int neighbour = *it;
+        if (neighbour == comingFrom) continue;
+        geodesicDistance += std::sqrt((particles[neighbour].position - particles[node].position).lengthSqr());
+        real_t euclideanDistance = std::sqrt((particles[neighbour].position - particles[originalNode].position).lengthSqr());
+        bio::writeSimple<real_t>(data, euclideanDistance);
+        bio::writeSimple<real_t>(data, geodesicDistance);
+        backboneDimensionSample(data, neighbour, node, originalNode, geodesicDistance);
+    }
 }

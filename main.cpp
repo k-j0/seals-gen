@@ -23,11 +23,15 @@ int main(int argc, char** argv) {
 	int iterations;
 	int particleGrowth;
 	bool writeJson;
+    bool computeBackboneDim = false;
 	std::string outFile;
 	{
 		Arguments args(argc, argv);
         bool sealPreset = args.read<bool>("seals", false);
 		surface = SurfaceFactory::build(args, sealPreset);
+        if (surface->isTree()) {
+            computeBackboneDim = args.read<bool>("compute-backbone-dim", false);
+        }
 		iterations = args.read<int>("iter", sealPreset ? 20000 : 600);
 		particleGrowth = args.read<int>("growth", 5);
 		writeJson = args.read<bool>("json", false);
@@ -112,7 +116,22 @@ int main(int argc, char** argv) {
 		std::printf(" and results/surface.json");
 	}
 	std::printf(".\n");
-
+    
+    // Compute the backbone dimension in-place if required
+    if (computeBackboneDim) {
+        std::printf("Computing backbone dimension...\n");
+	    bio::BufferedBinaryFileOutput<> backboneDimBinary(outFile + ".d_m");
+        if (surface->getDimension() == 2) {
+            Tree<2>* tree = dynamic_cast<Tree<2>*>(surface);
+            tree->backboneDimensionSamples(backboneDimBinary);
+        } else if (surface->getDimension() == 3) {
+            Tree<3>* tree = dynamic_cast<Tree<3>*>(surface);
+            tree->backboneDimensionSamples(backboneDimBinary);
+        }
+        backboneDimBinary.dump();
+        std::printf("Wrote backbone dimension samples to %s.d_m.\n", outFile.c_str());
+    }
+    
 	delete surface;
 
 	return 0;

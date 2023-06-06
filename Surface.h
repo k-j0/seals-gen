@@ -25,6 +25,8 @@ template<typename Bytes=bio::BufferedBinaryFileOutput<>>
 class SurfaceBase {
 public:
 	virtual ~SurfaceBase() { }
+    virtual bool isTree() { return false; }
+    virtual int getDimension() = 0;
 	virtual void addParticle() = 0;
 	virtual void update(real_t progression) = 0;
 	virtual std::string toJson(int runtimeMs) = 0;
@@ -158,6 +160,8 @@ public:
 	Surface(Params params, int seed);
 
 	virtual ~Surface() override { }
+    
+    int getDimension () override { return D; }
 
 	void update (real_t progression) override;
 
