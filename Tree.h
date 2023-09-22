@@ -31,6 +31,7 @@ public:
 		int minBranchLength = 3;
 		int maxBranchLength = 10;
         int growthDensitySamples = 1; // if > 1, will pick the least locally dense out of growthDensitySamples random samples as the node to grow from
+        real_t stopBranchingAfter = 1; // if < 1, will stop creating new branches after the specified normalized t, corresponding to e.g. birth for grey seals at CBL* = t* = ~0.67
 	};
     
     inline bool isTree() override { return true; }
@@ -39,6 +40,9 @@ private:
 	
 	// Additional parameters on top of the Surface<2>::Params
 	SpecificParams specificParams;
+    
+    // Flipped to true when t first reaches stopBranchingAfter
+    bool hasStoppedBranching = false;
 	
 	std::vector<std::unordered_set<int>> neighbourIndices; // for each particle, neighbourIndices provides all the neighbours
 	std::vector<int> youngIndices; // set of particle indices that are still considered 'young' enough for new growth to occur
@@ -105,7 +109,7 @@ public:
 	
 	Tree(typename Tree<D>::Params params, SpecificParams specificParams, int seed = time(nullptr));
 	
-	void addParticle() override;
+	void addParticle(real_t progression) override;
 	
 	void specificJson(std::string& json) override;
 	
@@ -141,7 +145,19 @@ Tree<D>::Tree(typename Tree<D>::Params params, SpecificParams specificParams, in
 }
 
 template<int D>
-void Tree<D>::addParticle() {
+void Tree<D>::addParticle(real_t progression) {
+    
+    if (!hasStoppedBranching && progression > specificParams.stopBranchingAfter) {
+        hasStoppedBranching = true;
+        
+        // remove all 'young' particles which aren't tips
+        youngIndices.clear();
+        for (std::size_t i = 0, sz = this->particles.size(); i < sz; ++i) {
+            if (neighbourIndices[i].size() == 1) { // leaf node
+                youngIndices.push_back(i);
+            }
+        }
+    }
     
     // O(1)
     
@@ -183,6 +199,8 @@ void Tree<D>::addParticle() {
 	// on the other hand if the branch is too long, force the node to accept new growth sometime in the future
 	int branchLength = distanceToBranch(newIdx);
 	bool allowGrowth =
+        progression > specificParams.stopBranchingAfter ?
+            false :
 		branchLength <= specificParams.minBranchLength ?
 			false :
 		branchLength >= specificParams.maxBranchLength ?

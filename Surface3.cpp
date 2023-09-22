@@ -70,7 +70,7 @@ void Surface3::computeNormals () {
 	}
 }
 
-void Surface3::addParticle() {
+void Surface3::addParticle(real_t) {
 	switch (specificParams.strategy) {
 	case GrowthStrategy::ON_EDGE:
 		addParticleEdge();

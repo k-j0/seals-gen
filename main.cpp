@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 			
 			// update surface
 			if (particleGrowth > 0 && t % particleGrowth == 0) {
-				surface->addParticle();
+				surface->addParticle(real_t(t)/real_t(iterations));
 			}
 			#ifndef NO_UPDATE
 				surface->update(real_t(t)/real_t(iterations));

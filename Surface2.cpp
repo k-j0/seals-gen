@@ -23,7 +23,7 @@ Surface2::Surface2(Params params, SpecificParams specificParams, int seed) : Sur
 	}
 }
 
-void Surface2::addParticle() {
+void Surface2::addParticle(real_t) {
 
 	// pick a random particle to insert the new particle after
 	int a = int(rand01() * particles.size());

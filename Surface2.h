@@ -84,7 +84,7 @@ public:
 
 	Surface2(Params params, SpecificParams specificParams, int seed = time(nullptr));
 
-	void addParticle() override;
+	void addParticle(real_t progression) override;
 
 	void specificJson(std::string& json) override;
 	

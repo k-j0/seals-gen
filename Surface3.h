@@ -101,7 +101,7 @@ public:
 	Surface3(Params params, SpecificParams specificParams, int seed = time(nullptr));
 
 	/// Adds a particle in a random location on the surface
-	void addParticle() override;
+	void addParticle(real_t progression) override;
 
 	/// Add specific info to the json string
 	void specificJson(std::string& json) override;
