@@ -232,10 +232,16 @@ void Tree<D>::specificBinary(bio::BufferedBinaryFileOutput<>& data) {
 	bio::writeCollection(data, youngIndices);
 }
 
+
+// Only consider nodes that are towards the origin when taking backbone dim samples; others are too close to the boundary for comfort
+#define CONSIDER_NODE_D_M(i) (particles[i].position.lengthSqr() < real_t(0.5*0.5))
+
 template<int D>
 void Tree<D>::backboneDimensionSamples (bio::BufferedBinaryFileOutput<>& data) {
     for (std::size_t i = 0, sz = particles.size(); i < sz; ++i) {
-        backboneDimensionSample(data, i, -1, i, real_t(0));
+        if (CONSIDER_NODE_D_M(i)) {
+            backboneDimensionSample(data, i, -1, i, real_t(0));
+        }
     }
 }
 
@@ -245,9 +251,15 @@ void Tree<D>::backboneDimensionSample (bio::BufferedBinaryFileOutput<>& data, in
         int neighbour = *it;
         if (neighbour == comingFrom) continue;
         geodesicDistance += std::sqrt((particles[neighbour].position - particles[node].position).lengthSqr());
-        real_t euclideanDistance = std::sqrt((particles[neighbour].position - particles[originalNode].position).lengthSqr());
-        bio::writeSimple<real_t>(data, euclideanDistance);
-        bio::writeSimple<real_t>(data, geodesicDistance);
+        
+        if (CONSIDER_NODE_D_M(neighbour)) {
+            real_t euclideanDistance = std::sqrt((particles[neighbour].position - particles[originalNode].position).lengthSqr());
+            bio::writeSimple<real_t>(data, euclideanDistance);
+            bio::writeSimple<real_t>(data, geodesicDistance);
+        }
+        
         backboneDimensionSample(data, neighbour, node, originalNode, geodesicDistance);
     }
 }
+
+#undef CONSIDER_NODE_D_M

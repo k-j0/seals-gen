@@ -13,4 +13,4 @@ def run(scale):
         '-iter', str(20000 * scale**1.5)
     ])
 
-run(10)
+run(5)
