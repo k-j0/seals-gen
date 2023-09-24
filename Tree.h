@@ -32,6 +32,7 @@ public:
 		int maxBranchLength = 10;
         int growthDensitySamples = 1; // if > 1, will pick the least locally dense out of growthDensitySamples random samples as the node to grow from
         real_t stopBranchingAfter = 1; // if < 1, will stop creating new branches after the specified normalized t, corresponding to e.g. birth for grey seals at CBL* = t* = ~0.67
+        int growthMaxLeafDistance = 0; // if > 0, new branches are only allowed to grow at most growthMaxLeafDistance nodes from a leaf node
 	};
     
     inline bool isTree() override { return true; }
@@ -105,6 +106,8 @@ protected:
 		return "t" + std::to_string(D);
 	}
 	
+    bool isNodeWithinLeafDistance(int node, int maxDistance, int parent = -1);
+    
 public:
 	
 	Tree(typename Tree<D>::Params params, SpecificParams specificParams, int seed = time(nullptr));
@@ -145,6 +148,23 @@ Tree<D>::Tree(typename Tree<D>::Params params, SpecificParams specificParams, in
 }
 
 template<int D>
+bool Tree<D>::isNodeWithinLeafDistance(int node, int maxDistance, int parent) {
+    
+    if (maxDistance < 0) return false;
+    
+    if (neighbourIndices[node].size() == 1) return true;
+    
+    for (int neighbour : neighbourIndices[node]) {
+        if (neighbour == parent) continue;
+        if (isNodeWithinLeafDistance(neighbour, maxDistance - 1, node)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+template<int D>
 void Tree<D>::addParticle(real_t progression) {
     
     if (!hasStoppedBranching && progression > specificParams.stopBranchingAfter) {
@@ -165,9 +185,16 @@ void Tree<D>::addParticle(real_t progression) {
     int youngIdx = -1;
     int a = -1;
     int localDensity = -1;
-    for (int i = 0; i < specificParams.growthDensitySamples; ++i) {
+    for (int i = 0; i < specificParams.growthDensitySamples;) {
         int potentialYoungIdx = int(rand01() * youngIndices.size());
         int potentialParticle = youngIndices[potentialYoungIdx];
+        
+        // Restrict new growth to branch tip proximity
+        if (specificParams.growthMaxLeafDistance > 0 && !isNodeWithinLeafDistance(potentialParticle, specificParams.growthMaxLeafDistance)) {
+            youngIndices.erase(youngIndices.begin() + potentialYoungIdx);
+            continue;
+        }
+        
         if (specificParams.growthDensitySamples == 1) { // don't bother sampling local densities if not needed
             youngIdx = potentialYoungIdx;
             a = potentialParticle;
@@ -179,6 +206,7 @@ void Tree<D>::addParticle(real_t progression) {
             a = potentialParticle;
             localDensity = potentialLocalDensity;
         }
+        ++i;
     }
     assert(a >= 0);
     
