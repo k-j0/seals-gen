@@ -173,6 +173,7 @@ void Tree<D>::addParticle(real_t progression) {
         // remove all 'young' particles which aren't tips
         youngIndices.clear();
         for (std::size_t i = 0, sz = this->particles.size(); i < sz; ++i) {
+            if (i == 0 && specificParams.attachFirstParticle) continue; // we don't consider the first node a leaf node
             if (neighbourIndices[i].size() == 1) { // leaf node
                 youngIndices.push_back(i);
             }
